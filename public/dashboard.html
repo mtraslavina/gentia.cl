@@ -6,6 +6,22 @@
   <title>Dashboard Profesional | Gentia</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @media print {
+      body > :not(#nativePrintArea) {
+        display: none !important;
+      }
+      #nativePrintArea {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
+  </style>
+
 </head>
 <body>
 
@@ -203,7 +219,10 @@
                 <input type="password" id="resendApiKey" class="form-control" placeholder="re_...">
               </div>
               <div class="form-group">
-                <label for="geminiApiKey">API Key de Gemini (Para Epicrisis/Transcripción)</label>
+                <label for="geminiApiKey" class="flex justify-between items-center">
+                  <span>API Key de Gemini (Para Epicrisis/Transcripción)</span>
+                  <a href="#" onclick="window.showGeminiSetupHelp(event)" style="font-size:0.75rem; color:var(--color-emerald-600); font-weight:600; text-decoration:none;">¿Cómo obtenerla?</a>
+                </label>
                 <input type="password" id="geminiApiKey" class="form-control" placeholder="AIzaSy...">
               </div>
               
@@ -369,9 +388,15 @@
         <div class="form-group">
           <label for="nnContenido" class="flex justify-between items-center">
             <span>Notas de la sesión (Confidencial)</span>
-            <button type="button" id="btnRecordAudio" class="btn btn-outline flex" style="border-radius: 50%; width: 36px; height: 36px; padding: 0; justify-content: center; align-items: center; margin-bottom: 5px;" title="Grabar y transcribir sesión con IA">
-              <i data-lucide="mic" style="width: 16px; height: 16px; color: var(--color-rose-600);"></i>
-            </button>
+            <div class="flex gap-2">
+              <button type="button" id="btnRecordAudio" class="btn btn-outline flex btn-ai" style="border-radius: 50%; width: 36px; height: 36px; padding: 0; justify-content: center; align-items: center; margin-bottom: 5px;" title="Grabar y transcribir sesión con IA">
+                <i data-lucide="mic" style="width: 16px; height: 16px; color: var(--color-rose-600);"></i>
+              </button>
+              <button type="button" id="btnUploadAudioFile" class="btn btn-outline flex btn-ai" style="border-radius: 50%; width: 36px; height: 36px; padding: 0; justify-content: center; align-items: center; margin-bottom: 5px;" title="Subir archivo de audio para transcribir">
+                <i data-lucide="upload-cloud" style="width: 16px; height: 16px; color: var(--color-sky-600);"></i>
+              </button>
+              <input type="file" id="nnAudioFile" accept="audio/*" class="hidden" onchange="window.handleAudioFileUpload(event)">
+            </div>
           </label>
           <textarea id="nnContenido" class="form-control" rows="5" required placeholder="Escribe el reporte de evolución de la sesión o presiona el micrófono para transcribir con voz..."></textarea>
         </div>
@@ -708,6 +733,24 @@
     </div>
   </div>
 
+
+  <!-- Modal: Ayuda API Key Gemini -->
+  <div id="modal-gemini-help" class="modal-overlay hidden">
+    <div class="modal-window" style="max-width: 480px;">
+      <h3 style="font-size: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; color: var(--color-slate-900);">
+        <i data-lucide="sparkles" style="color: var(--color-emerald-600);"></i> Cómo obtener tu API Key de Gemini
+      </h3>
+      <ol style="font-size: 0.85rem; color: var(--color-slate-700); padding-left: 1.25rem; line-height: 1.6; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
+        <li>Ingresa a <b><a href="https://aistudio.google.com/" target="_blank" style="color: var(--color-emerald-600); font-weight:600;">Google AI Studio</a></b> e inicia sesión con tu cuenta de Google.</li>
+        <li>Haz clic en el botón azul en la esquina superior izquierda que dice <b>"Get API key"</b> (Obtener clave de API).</li>
+        <li>Haz clic en el botón <b>"Create API key"</b> (Crear clave de API).</li>
+        <li>Selecciona o crea un nuevo proyecto de Google Cloud (es 100% gratuito) y haz clic en <b>"Create API key in existing project"</b>.</li>
+        <li>Copia la clave generada (comienza con <code>AIzaSy...</code>) y pégala en el campo de configuración del formulario.</li>
+      </ol>
+      <button type="button" class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="closeModal('modal-gemini-help')">Entendido</button>
+    </div>
+  </div>
+
   <!-- Notification Toast -->
   <div id="toastNotification" class="hidden animate-fade" style="position: fixed; bottom: 2rem; right: 2rem; background: var(--color-slate-900); color: white; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 200;">
     <i data-lucide="info" id="toastIcon" style="color: var(--color-emerald-600);"></i>
@@ -850,6 +893,7 @@
         document.getElementById("tfEmail").value = tf.email || "";
 
         updateSyncStatus();
+        enforceTiers();
       } catch (err) {
         console.error("Error cargando configuración:", err);
       }
@@ -969,6 +1013,7 @@
 
         // Render List
         renderPatientsList(pacientesCache);
+        enforceTiers();
       }, (error) => {
         console.error("Error listening to patients:", error);
       });
@@ -1100,7 +1145,7 @@
               <button onclick="openModalAnalitica()" class="btn btn-outline flex gap-2" style="padding: 0.5rem 0.75rem; font-size: 0.75rem;">
                 <i data-lucide="bar-chart-3" style="width: 14px; height: 14px;"></i> Analíticas
               </button>
-              <button onclick="openModalEpicrisis('${patientId}')" class="btn btn-outline flex gap-2" style="padding: 0.5rem 0.75rem; font-size: 0.75rem; background: #f3e8ff; border-color: #d8b4fe; color: #6b21a8;">
+              <button onclick="openModalEpicrisis('${patientId}')" class="btn btn-outline flex gap-2 btn-ai" style="padding: 0.5rem 0.75rem; font-size: 0.75rem; background: #f3e8ff; border-color: #d8b4fe; color: #6b21a8;">
                 <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> Epicrisis IA
               </button>
               ${p.estado === 'Alta' 
