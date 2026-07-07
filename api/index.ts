@@ -32,7 +32,9 @@ app.use(express.urlencoded({ extended: true }));
 const ENV = {
   RESEND_API_KEY: process.env.RESEND_API_KEY || "",
   RECAPTCHA_SECRET: process.env.RECAPTCHA_SECRET || "",
-  API_REDIRECT_BASE_URL: process.env.API_REDIRECT_BASE_URL || "https://gentia.cl"
+  API_REDIRECT_BASE_URL: process.env.API_REDIRECT_BASE_URL || "https://gentia.cl",
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || ""
 };
 
 const getTransporter = (apiKey?: string) => nodemailer.createTransport({ 
@@ -245,7 +247,28 @@ app.post("/api/enviarEmailManual", handleExpressCall(async (data) => {
 
   if (tipo === 'pago') { 
     const montoFormateado = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(d.precio || 25000);
-    const html = `<p>Hola <strong>${nombreActual}</strong>,</p><p>Te enviamos este recordatorio para el pago de tu sesión del <strong>${fecha}</strong> (${d.modalidad||'Online'}).</p><div style="background:#f5f5f4; padding:15px; border-radius:12px; text-align:center; margin:20px 0;"><span style="font-size:12px; color:#78716c; text-transform:uppercase; letter-spacing:1px;">Monto a pagar</span><br><span style="font-size:24px; font-weight:bold; color:#0f172a;">${montoFormateado}</span></div><p style="text-align:center;font-size:12px;color:#78716c;">Puedes pagar rápidamente con cualquier tarjeta a través de Webpay, o vía transferencia bancaria:</p><div class="highlight-box" style="margin-top:10px;"><strong>Datos Transferencia:</strong><br>${psData.datosTransferencia || "Datos no configurados por el profesional en la plataforma."}</div>`; 
+    
+    let datosTransferenciaHtml = "";
+    if (psData.datosTransferencia && typeof psData.datosTransferencia === 'object') {
+      const tf = psData.datosTransferencia as any;
+      if (tf.banco) {
+        datosTransferenciaHtml = `
+          <strong>Datos para Transferencia:</strong><br>
+          <b>Nombre Titular:</b> ${tf.nombre || psNombre}<br>
+          <b>RUT:</b> ${tf.rut || ""}<br>
+          <b>Banco:</b> ${tf.banco || ""}<br>
+          <b>Tipo Cuenta:</b> ${tf.tipoCuenta || ""}<br>
+          <b>N° Cuenta:</b> ${tf.numCuenta || ""}<br>
+          <b>Email de Aviso:</b> ${tf.email || psData.email || ""}
+        `;
+      } else {
+        datosTransferenciaHtml = "Datos de transferencia no configurados por el profesional.";
+      }
+    } else {
+      datosTransferenciaHtml = `<strong>Datos Transferencia:</strong><br>${psData.datosTransferencia || "Datos no configurados por el profesional en la plataforma."}`;
+    }
+
+    const html = `<p>Hola <strong>${nombreActual}</strong>,</p><p>Te enviamos este recordatorio para el pago de tu sesión del <strong>${fecha}</strong> (${d.modalidad||'Online'}).</p><div style="background:#f5f5f4; padding:15px; border-radius:12px; text-align:center; margin:20px 0;"><span style="font-size:12px; color:#78716c; text-transform:uppercase; letter-spacing:1px;">Monto a pagar</span><br><span style="font-size:24px; font-weight:bold; color:#0f172a;">${montoFormateado}</span></div><p style="text-align:center;font-size:12px;color:#78716c;">Puedes pagar rápidamente con cualquier tarjeta a través de Webpay, o vía transferencia bancaria:</p><div style="background:#f0fdf4; border: 1px solid #bbf7d0; border-radius:12px; padding:15px; margin-top:10px; font-size:13px; color:#166534; line-height:1.5;">${datosTransferenciaHtml}</div>`; 
     const btn = `<a href="${linkPago}" class="btn btn-pay">PAGAR ONLINE</a>`; 
     await transporter.sendMail({ 
       from: `"Finanzas ${psNombre}" <contacto@gentia.cl>`, 
@@ -334,14 +357,27 @@ app.get("/api/procesarRespuestaPaciente", async (req, res) => {
 
 // Google Calendar Sync Functions
 
+app.post("/api/getGoogleAuthUrl", handleExpressCall(async (data) => {
+  const { redirectUri } = data;
+  if (!redirectUri) throw new Error("Falta la URL de redireccionamiento.");
+  
+  const scope = "https://www.googleapis.com/auth/calendar.events";
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&response_type=code&client_id=${encodeURIComponent(ENV.GOOGLE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`;
+  
+  return { url: authUrl };
+}));
+
 app.post("/api/saveGoogleTokens", handleExpressCall(async (data) => {
   const { psicologoId, code, redirectUri, clientId, clientSecret } = data; 
-  if (!psicologoId || !code || !clientId || !clientSecret) throw new Error("Faltan parámetros de seguridad."); 
+  if (!psicologoId || !code) throw new Error("Faltan parámetros de seguridad."); 
+
+  const finalClientId = clientId || ENV.GOOGLE_CLIENT_ID;
+  const finalClientSecret = clientSecret || ENV.GOOGLE_CLIENT_SECRET;
 
   const params = new URLSearchParams(); 
   params.append('code', code); 
-  params.append('client_id', clientId); 
-  params.append('client_secret', clientSecret); 
+  params.append('client_id', finalClientId); 
+  params.append('client_secret', finalClientSecret); 
   params.append('redirect_uri', redirectUri); 
   params.append('grant_type', 'authorization_code'); 
 
@@ -352,7 +388,7 @@ app.post("/api/saveGoogleTokens", handleExpressCall(async (data) => {
   }); 
 
   const tokenData = await response.json() as any; 
-  if (!response.ok) throw new Error(`Google rechazó el código: ${tokenData.error}`); 
+  if (!response.ok) throw new Error(`Google rechazó el código: ${tokenData.error_description || tokenData.error || JSON.stringify(tokenData)}`); 
 
   const tokens = { 
     access_token: tokenData.access_token, 
@@ -362,10 +398,12 @@ app.post("/api/saveGoogleTokens", handleExpressCall(async (data) => {
     expiry_date: Date.now() + ((tokenData.expires_in || 3600) * 1000) 
   }; 
 
-  await db.collection("psicologos").doc(psicologoId).set({ 
-    googleTokens: tokens,
-    googleConfig: { clientId, clientSecret }
-  }, { merge: true }); 
+  const updatePayload: any = { googleTokens: tokens };
+  if (clientId && clientSecret) {
+    updatePayload.googleConfig = { clientId, clientSecret };
+  }
+
+  await db.collection("psicologos").doc(psicologoId).set(updatePayload, { merge: true }); 
   return { success: true };
 }));
 
@@ -386,13 +424,14 @@ app.post("/api/syncCalendarEvent", handleExpressCall(async (data) => {
   if (psData.googleTokens.expiry_date && Date.now() >= psData.googleTokens.expiry_date - 60000) {
     // Refresh Token
     const refreshToken = psData.googleTokens.refresh_token;
-    const clientId = psData.googleConfig?.clientId;
-    const clientSecret = psData.googleConfig?.clientSecret;
-    if (refreshToken && clientId && clientSecret) {
+    const finalClientId = psData.googleConfig?.clientId || ENV.GOOGLE_CLIENT_ID;
+    const finalClientSecret = psData.googleConfig?.clientSecret || ENV.GOOGLE_CLIENT_SECRET;
+    
+    if (refreshToken && finalClientId && finalClientSecret) {
       try {
         const params = new URLSearchParams();
-        params.append('client_id', clientId);
-        params.append('client_secret', clientSecret);
+        params.append('client_id', finalClientId);
+        params.append('client_secret', finalClientSecret);
         params.append('refresh_token', refreshToken);
         params.append('grant_type', 'refresh_token');
 

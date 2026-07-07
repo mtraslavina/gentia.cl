@@ -69,21 +69,12 @@
             throw new Error("No se encontró el perfil de psicólogo en Firestore.");
           }
           
-          const psData = psDocSnap.data();
-          const googleConfig = psData.googleConfig || {};
-          
-          if (!googleConfig.clientId || !googleConfig.clientSecret) {
-            throw new Error("No has configurado tu Client ID o Client Secret de Google en la sección de Ajustes.");
-          }
-
           // 2. Call our Vercel API saveGoogleTokens function using wrapped httpsCallable
           const saveTokens = httpsCallable(functions, 'saveGoogleTokens');
           const res = await saveTokens({ 
             psicologoId: user.uid,
             code: code, 
-            redirectUri: window.location.origin + '/oauth2callback.html',
-            clientId: googleConfig.clientId,
-            clientSecret: googleConfig.clientSecret
+            redirectUri: window.location.origin + '/oauth2callback.html'
           });
           
           if (res.data && res.data.success === false) {
