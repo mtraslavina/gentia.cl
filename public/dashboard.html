@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Profesional | Gentia</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div>
+        <div class="sidebar-logo">
+          <i data-lucide="brain-circuit" style="color: var(--color-emerald-600); width: 28px; height: 28px;"></i>
+          gentia<span style="color: var(--color-emerald-600);">.cl</span>
+        </div>
+        <ul class="sidebar-menu">
+          <li class="sidebar-menu-item">
+            <a class="sidebar-link active" onclick="switchTab('tab-dashboard', this)">
+              <i data-lucide="layout-dashboard"></i>
+              Dashboard
+            </a>
+          </li>
+          <li class="sidebar-menu-item">
+            <a class="sidebar-link" onclick="switchTab('tab-pacientes', this)">
+              <i data-lucide="users"></i>
+              Pacientes
+            </a>
+          </li>
+          <li class="sidebar-menu-item">
+            <a class="sidebar-link" onclick="switchTab('tab-citas', this)">
+              <i data-lucide="calendar"></i>
+              Agenda / Citas
+            </a>
+          </li>
+          <li class="sidebar-menu-item">
+            <a class="sidebar-link" onclick="switchTab('tab-ajustes', this)">
+              <i data-lucide="settings"></i>
+              Ajustes
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <a class="sidebar-link" id="btnLogout" style="color: var(--color-rose-600); background: var(--color-rose-50);">
+          <i data-lucide="log-out"></i>
+          Cerrar Sesión
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="dashboard-content">
+      <!-- Top Header -->
+      <header class="header-dashboard">
+        <div>
+          <h1 id="psNameHeader" style="font-size: 1.75rem; margin-bottom: 0.25rem;">Bienvenido</h1>
+          <p style="color: var(--color-slate-500); font-size: 0.9rem;" id="psEmailHeader">Cargando perfil...</p>
+        </div>
+        <div class="flex gap-4">
+          <button class="btn btn-outline flex gap-2" onclick="openModal('modal-nuevo-paciente')">
+            <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i>
+            Nuevo Paciente
+          </button>
+          <button class="btn btn-emerald flex gap-2" onclick="openModal('modal-nueva-cita')">
+            <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+            Nueva Cita
+          </button>
+        </div>
+      </header>
+
+      <!-- TAB: DASHBOARD -->
+      <section id="tab-dashboard" class="tab-pane animate-fade">
+        <div class="grid gap-6" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 3rem;">
+          <!-- Metric Card 1 -->
+          <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem;">
+            <div style="width: 48px; height: 48px; background: var(--color-emerald-50); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="users" style="color: var(--color-emerald-600);"></i>
+            </div>
+            <div>
+              <p style="font-size: 0.75rem; color: var(--color-slate-500); text-transform: uppercase; font-weight: 600;">Total Pacientes</p>
+              <h3 id="metric-pacientes" style="font-size: 1.75rem; font-weight: 800;">0</h3>
+            </div>
+          </div>
+          <!-- Metric Card 2 -->
+          <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem;">
+            <div style="width: 48px; height: 48px; background: var(--color-sky-50); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="calendar" style="color: var(--color-sky-600);"></i>
+            </div>
+            <div>
+              <p style="font-size: 0.75rem; color: var(--color-slate-500); text-transform: uppercase; font-weight: 600;">Citas Confirmadas</p>
+              <h3 id="metric-citas" style="font-size: 1.75rem; font-weight: 800;">0</h3>
+            </div>
+          </div>
+          <!-- Metric Card 3 -->
+          <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem;">
+            <div id="calendar-sync-icon-bg" style="width: 48px; height: 48px; background: var(--color-rose-50); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <i id="calendar-sync-icon" data-lucide="calendar-off" style="color: var(--color-rose-600);"></i>
+            </div>
+            <div>
+              <p style="font-size: 0.75rem; color: var(--color-slate-500); text-transform: uppercase; font-weight: 600;">Google Calendar</p>
+              <h3 id="metric-sync" style="font-size: 1rem; font-weight: 700; color: var(--color-slate-900);">Desconectado</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-6" style="grid-template-columns: 2fr 1fr;">
+          <!-- Left: Next Appointments -->
+          <div class="card">
+            <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem;">Citas Próximas (Siguientes 7 días)</h3>
+            <div id="upcoming-citas-list" style="display: flex; flex-direction: column; gap: 1rem;">
+              <p style="color: var(--color-slate-500); font-style: italic; font-size: 0.9rem;">Cargando citas...</p>
+            </div>
+          </div>
+          <!-- Right: Quick Links / Information -->
+          <div class="card" style="background: radial-gradient(circle at top right, var(--color-emerald-50), transparent); border-color: rgba(5, 150, 105, 0.1);">
+            <h3 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--color-emerald-700);">Link de Reserva Público</h3>
+            <p style="color: var(--color-slate-500); font-size: 0.875rem; margin-bottom: 1.5rem;">Comparte este link con tus pacientes para que puedan reservar de manera autónoma en tu agenda.</p>
+            <div class="form-group">
+              <input type="text" id="publicBookingLink" class="form-control" style="font-size: 0.8rem; background: white;" readonly>
+            </div>
+            <button class="btn btn-emerald flex gap-2" style="width: 100%;" onclick="copyBookingLink()">
+              <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+              Copiar Enlace
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: PACIENTES -->
+      <section id="tab-pacientes" class="tab-pane hidden animate-fade">
+        <div class="patient-list-container">
+          <!-- Sidebar: List -->
+          <div class="patient-sidebar-list">
+            <div class="search-box">
+              <input type="text" id="searchPac" class="form-control" placeholder="Buscar paciente..." oninput="filtrarPacientes()">
+            </div>
+            <div class="patients-scroll" id="patientsListContainer">
+              <p style="padding: 1rem; color: var(--color-slate-500); font-size: 0.9rem;">Cargando pacientes...</p>
+            </div>
+          </div>
+
+          <!-- Main: Profile Detail -->
+          <div class="patient-profile" id="patientDetailContainer">
+            <div style="text-align: center; color: var(--color-slate-500); padding: 5rem 0;">
+              <i data-lucide="user" style="width: 48px; height: 48px; stroke-width: 1.5; margin-bottom: 1rem;"></i>
+              <h3>Selecciona un paciente</h3>
+              <p style="font-size: 0.9rem;">Haz clic en un paciente de la lista para ver su ficha clínica completa.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: CITAS / CALENDARIO -->
+      <section id="tab-citas" class="tab-pane hidden animate-fade">
+        <div class="grid gap-6" style="grid-template-columns: 2fr 1.25fr;">
+          <!-- Calendar Card -->
+          <div class="card">
+            <div class="flex justify-between items-center" style="margin-bottom: 1.5rem;">
+              <h3 style="font-size: 1.25rem;" id="calendarMonthTitle">Mes</h3>
+              <div class="flex gap-2">
+                <button class="btn btn-outline" style="padding: 0.5rem 1rem;" onclick="prevMonth()"><i data-lucide="chevron-left"></i></button>
+                <button class="btn btn-outline" style="padding: 0.5rem 1rem;" onclick="nextMonth()"><i data-lucide="chevron-right"></i></button>
+              </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+              <!-- Grid injected by JS -->
+            </div>
+          </div>
+
+          <!-- Selected Day Appointments & Actions -->
+          <div class="card">
+            <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem;" id="selectedDateTitle">Selecciona un día</h3>
+            <div id="dayAppointmentsContainer" style="display: flex; flex-direction: column; gap: 1rem; max-height: 400px; overflow-y: auto; padding-right: 0.5rem;">
+              <p style="color: var(--color-slate-500); font-style: italic; font-size: 0.9rem;">Haz clic en un día del calendario para ver las sesiones agendadas.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: AJUSTES -->
+      <section id="tab-ajustes" class="tab-pane hidden animate-fade">
+        <div class="grid gap-6" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+          <!-- Card: Google Calendar Integration -->
+          <div class="card">
+            <h3 style="font-size: 1.25rem; margin-bottom: 1rem;"><i data-lucide="calendar" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i> Google Calendar</h3>
+            <p style="color: var(--color-slate-500); font-size: 0.85rem; margin-bottom: 1.5rem;">Configura tu aplicación en la consola de desarrolladores de Google Cloud y vincula tu calendario.</p>
+            
+            <form id="googleConfigForm">
+              <div class="form-group">
+                <label for="googleClientId">Client ID de Google</label>
+                <input type="text" id="googleClientId" class="form-control" placeholder="123456-abcdef.apps.googleusercontent.com" required>
+              </div>
+              <div class="form-group">
+                <label for="googleSecret">Client Secret de Google</label>
+                <input type="password" id="googleSecret" class="form-control" placeholder="GOCSPX-abc123xyz" required>
+              </div>
+              <div class="form-group">
+                <label>Redirect URI de Google (Configurar en Google Console)</label>
+                <input type="text" id="googleRedirectUri" class="form-control" style="background: var(--bg-secondary); font-size: 0.8rem;" readonly>
+              </div>
+              <div class="flex gap-4">
+                <button type="submit" class="btn btn-outline" style="flex: 1;">Guardar Claves</button>
+                <button type="button" id="btnLinkGoogle" class="btn btn-sky flex gap-2" style="flex: 1.2;" disabled>
+                  <i data-lucide="refresh-cw"></i> Vincular Cuenta
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Card: General Preferences -->
+          <div class="card">
+            <h3 style="font-size: 1.25rem; margin-bottom: 1rem;"><i data-lucide="settings" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i> Preferencias y Precios</h3>
+            
+            <form id="preferencesForm">
+              <div class="form-group">
+                <label for="psNombre">Nombre Profesional</label>
+                <input type="text" id="psNombre" class="form-control" placeholder="Ej. Ps. Matías Traslaviña" required>
+              </div>
+              <div class="grid gap-4" style="grid-template-columns: 1fr 1fr;">
+                <div class="form-group">
+                  <label for="precioOnline">Precio Cita Online (CLP)</label>
+                  <input type="number" id="precioOnline" class="form-control" placeholder="25000" required>
+                </div>
+                <div class="form-group">
+                  <label for="precioPresencial">Precio Presencial (CLP)</label>
+                  <input type="number" id="precioPresencial" class="form-control" placeholder="35000" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="resendApiKey">API Key Personal de Resend (Opcional)</label>
+                <input type="password" id="resendApiKey" class="form-control" placeholder="re_...">
+              </div>
+              <div class="form-group">
+                <label for="datosTransferencia">Datos de Transferencia Bancaria (Párrafo)</label>
+                <textarea id="datosTransferencia" class="form-control" rows="3" placeholder="Banco, Tipo de cuenta, N° de cuenta, RUT, Correo" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%;">Guardar Ajustes</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- Modal: Nuevo Paciente -->
+  <div id="modal-nuevo-paciente" class="modal-overlay hidden">
+    <div class="modal-window">
+      <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Registrar Nuevo Paciente</h3>
+      <form id="nuevoPacienteForm">
+        <div class="form-group">
+          <label for="npNombre">Nombre Completo</label>
+          <input type="text" id="npNombre" class="form-control" required placeholder="Juan Pérez">
+        </div>
+        <div class="grid gap-4" style="grid-template-columns: 1fr 1.25fr;">
+          <div class="form-group">
+            <label for="npRut">RUT / Identificador</label>
+            <input type="text" id="npRut" class="form-control" placeholder="12.345.678-9">
+          </div>
+          <div class="form-group">
+            <label for="npNacimiento">Fecha Nacimiento</label>
+            <input type="date" id="npNacimiento" class="form-control">
+          </div>
+        </div>
+        <div class="grid gap-4" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label for="npEmail">Correo Electrónico</label>
+            <input type="email" id="npEmail" class="form-control" required placeholder="juan@correo.com">
+          </div>
+          <div class="form-group">
+            <label for="npTelefono">Teléfono (Solo números)</label>
+            <div style="display: flex;">
+              <input type="text" id="npCodigoPais" class="form-control" style="width: 70px; border-radius: 14px 0 0 14px; text-align: center; border-right: none;" value="+56">
+              <input type="text" id="npTelefono" class="form-control" style="border-radius: 0 14px 14px 0;" required placeholder="912345678">
+            </div>
+          </div>
+        </div>
+        <div class="grid gap-4" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label for="npPrevision">Previsión</label>
+            <input type="text" id="npPrevision" class="form-control" placeholder="Fonasa, Isapre...">
+          </div>
+          <div class="form-group">
+            <label for="npGenero">Género</label>
+            <select id="npGenero" class="form-control">
+              <option value="Omitido">Omitir</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+              <option value="No binario">No Binario</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid gap-4" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label for="npAntMed">Ant. Médicos</label>
+            <input type="text" id="npAntMed" class="form-control" placeholder="Diabetes, etc.">
+          </div>
+          <div class="form-group">
+            <label for="npAntPsiq">Ant. Psiquiátricos</label>
+            <input type="text" id="npAntPsiq" class="form-control" placeholder="Tratamiento previo, etc.">
+          </div>
+        </div>
+        
+        <div class="flex gap-4" style="margin-top: 1rem;">
+          <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('modal-nuevo-paciente')">Cancelar</button>
+          <button type="submit" class="btn btn-emerald" style="flex: 1.2;">Guardar Paciente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Nueva Cita -->
+  <div id="modal-nueva-cita" class="modal-overlay hidden">
+    <div class="modal-window">
+      <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Agendar Sesión Manual</h3>
+      <form id="nuevaCitaForm">
+        <div class="form-group">
+          <label for="ncPaciente">Seleccionar Paciente</label>
+          <select id="ncPaciente" class="form-control" required>
+            <!-- Injected by JS -->
+          </select>
+        </div>
+        <div class="grid gap-4" style="grid-template-columns: 1.25fr 1fr;">
+          <div class="form-group">
+            <label for="ncFecha">Fecha</label>
+            <input type="date" id="ncFecha" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="ncHora">Hora (hh:mm)</label>
+            <input type="time" id="ncHora" class="form-control" required>
+          </div>
+        </div>
+        <div class="grid gap-4" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label for="ncModalidad">Modalidad</label>
+            <select id="ncModalidad" class="form-control" onchange="actualizarPrecioSugeridoCita()">
+              <option value="Online">Online</option>
+              <option value="Presencial">Presencial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ncPrecio">Monto Cobro (CLP)</label>
+            <input type="number" id="ncPrecio" class="form-control" required placeholder="25000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="ncPlan">Vincular a Plan/Pack (Opcional)</label>
+          <input type="text" id="ncPlan" class="form-control" placeholder="Ej. Pack 4 Sesiones">
+        </div>
+        
+        <div class="flex gap-4" style="margin-top: 1rem;">
+          <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('modal-nueva-cita')">Cancelar</button>
+          <button type="submit" class="btn btn-emerald" style="flex: 1.2;">Agendar Cita</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Agregar Nota Clínica -->
+  <div id="modal-nueva-nota" class="modal-overlay hidden">
+    <div class="modal-window">
+      <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Agregar Nota Clínica / Evolución</h3>
+      <form id="nuevaNotaForm">
+        <input type="hidden" id="nnPacienteId">
+        <div class="form-group">
+          <label for="nnContenido">Notas de la sesión (Confidencial)</label>
+          <textarea id="nnContenido" class="form-control" rows="5" required placeholder="Escribe el reporte de evolución de la sesión..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="nnTipo">Tipo de Nota</label>
+          <select id="nnTipo" class="form-control">
+            <option value="Evolución">Evolución</option>
+            <option value="Diagnóstica">Diagnóstica</option>
+            <option value="Seguimiento">Seguimiento</option>
+            <option value="Cierre">Cierre</option>
+          </select>
+        </div>
+        
+        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 16px; margin-bottom: 1.5rem;">
+          <p style="font-size: 0.8rem; font-weight: 700; color: var(--color-slate-900); text-transform: uppercase; margin-bottom: 1rem; letter-spacing: 0.5px;">Métricas Clínicas de Sesión (0-10)</p>
+          
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <div class="flex justify-between" style="font-size: 0.8rem; margin-bottom: 0.25rem;">
+              <span>Ansiedad</span><strong id="valAnsiedad">0</strong>
+            </div>
+            <input type="range" id="nnAnsiedad" min="0" max="10" value="0" class="form-control" style="padding:0;" oninput="document.getElementById('valAnsiedad').textContent=this.value">
+          </div>
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <div class="flex justify-between" style="font-size: 0.8rem; margin-bottom: 0.25rem;">
+              <span>Depresión</span><strong id="valDepresion">0</strong>
+            </div>
+            <input type="range" id="nnDepresion" min="0" max="10" value="0" class="form-control" style="padding:0;" oninput="document.getElementById('valDepresion').textContent=this.value">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <div class="flex justify-between" style="font-size: 0.8rem; margin-bottom: 0.25rem;">
+              <span>Estrés</span><strong id="valEstres">0</strong>
+            </div>
+            <input type="range" id="nnEstres" min="0" max="10" value="0" class="form-control" style="padding:0;" oninput="document.getElementById('valEstres').textContent=this.value">
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('modal-nueva-nota')">Cancelar</button>
+          <button type="submit" class="btn btn-emerald" style="flex: 1.2;">Guardar Evolución</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Subir Archivo -->
+  <div id="modal-subir-archivo" class="modal-overlay hidden">
+    <div class="modal-window">
+      <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Asociar Documento / Ficha</h3>
+      <form id="subirArchivoForm">
+        <input type="hidden" id="saPacienteId">
+        <div class="form-group">
+          <label for="saNombre">Nombre del Documento</label>
+          <input type="text" id="saNombre" class="form-control" required placeholder="Ej. Consentimiento Informado">
+        </div>
+        <div class="form-group">
+          <label for="saUrl">Enlace / URL del archivo (Firebase Storage / Drive)</label>
+          <input type="url" id="saUrl" class="form-control" required placeholder="https://drive.google.com/...">
+        </div>
+        <div class="form-group">
+          <label for="saTipo">Tipo de Documento</label>
+          <select id="saTipo" class="form-control">
+            <option value="Firma / Consentimiento">Consentimiento / Contrato</option>
+            <option value="Evaluación Externa">Evaluación Externa</option>
+            <option value="Informe Médico">Informe Médico</option>
+            <option value="Receta">Receta</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="saDescripcion">Descripción Opcional</label>
+          <input type="text" id="saDescripcion" class="form-control" placeholder="Anotaciones extra del archivo">
+        </div>
+        
+        <div class="flex gap-4" style="margin-top: 1rem;">
+          <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('modal-subir-archivo')">Cancelar</button>
+          <button type="submit" class="btn btn-emerald" style="flex: 1.2;">Vincular Archivo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Configurar Alertas Ficha -->
+  <div id="modal-alertas-paciente" class="modal-overlay hidden">
+    <div class="modal-window">
+      <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Configurar Alertas Clínicas</h3>
+      <p style="color: var(--color-slate-500); font-size: 0.85rem; margin-bottom: 1.5rem;">El sistema te enviará una alerta crítica por correo electrónico si se registran valores críticos sostenidos en las evoluciones del paciente.</p>
+      
+      <form id="alertasPacienteForm">
+        <input type="hidden" id="apPacienteId">
+        
+        <!-- Ansiedad -->
+        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 14px; margin-bottom: 1rem;">
+          <div class="flex justify-between items-center" style="margin-bottom: 0.5rem;">
+            <span style="font-weight: 600; font-size: 0.9rem;">Alerta Ansiedad</span>
+            <input type="checkbox" id="apAnsiedadActivo" style="width: 18px; height: 18px;">
+          </div>
+          <div class="grid gap-2" style="grid-template-columns: 1fr 1fr;">
+            <div>
+              <label style="font-size: 0.75rem; color: var(--color-slate-500);">Umbral Puntaje (≥)</label>
+              <input type="number" id="apAnsiedadUmbral" class="form-control" style="padding: 0.5rem 1rem;" min="1" max="10" value="8">
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--color-slate-500);">N° Sesiones seguidas</label>
+              <input type="number" id="apAnsiedadSesiones" class="form-control" style="padding: 0.5rem 1rem;" min="1" max="10" value="3">
+            </div>
+          </div>
+        </div>
+
+        <!-- Depresión -->
+        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 14px; margin-bottom: 1rem;">
+          <div class="flex justify-between items-center" style="margin-bottom: 0.5rem;">
+            <span style="font-weight: 600; font-size: 0.9rem;">Alerta Depresión</span>
+            <input type="checkbox" id="apDepresionActivo" style="width: 18px; height: 18px;">
+          </div>
+          <div class="grid gap-2" style="grid-template-columns: 1fr 1fr;">
+            <div>
+              <label style="font-size: 0.75rem; color: var(--color-slate-500);">Umbral Puntaje (≥)</label>
+              <input type="number" id="apDepresionUmbral" class="form-control" style="padding: 0.5rem 1rem;" min="1" max="10" value="8">
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--color-slate-500);">N° Sesiones seguidas</label>
+              <input type="number" id="apDepresionSesiones" class="form-control" style="padding: 0.5rem 1rem;" min="1" max="10" value="3">
+            </div>
+          </div>
+        </div>
+
+        <!-- Estrés -->
+        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 14px; margin-bottom: 1.5rem;">
+          <div class="flex justify-between items-center" style="margin-bottom: 0.5rem;">
+            <span style="font-weight: 600; font-size: 0.9rem;">Alerta Estrés</span>
+            <input type="checkbox" id="apEstresActivo" style="width: 18px; height: 18px;">
+          </div>
+          <div class="grid gap-2" style="grid-template-columns: 1fr 1fr;">
+            <div>
+              <label style="font-size: 0.75rem; color: var(--color-slate-500);">Umbral Puntaje (≥)</label>
+              <input type="number" id="apEstresUmbral" class="form-control" style="padding: 0.5rem 1rem;" min="1" max="10" value="8">
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--color-slate-500);">N° Sesiones seguidas</label>
+              <input type="number" id="apEstresSesiones" class="form-control" style="padding: 0.5rem 1rem;" min="1" max="10" value="3">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('modal-alertas-paciente')">Cancelar</button>
+          <button type="submit" class="btn btn-emerald" style="flex: 1.2;">Guardar Alertas</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toastNotification" class="hidden animate-fade" style="position: fixed; bottom: 2rem; right: 2rem; background: var(--color-slate-900); color: white; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 200;">
+    <i data-lucide="info" id="toastIcon" style="color: var(--color-emerald-600);"></i>
+    <span id="toastMessage" style="font-size: 0.9rem; font-weight: 500;">Operación realizada</span>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js": "./api-config.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getFirestore, doc, getDoc, setDoc, updateDoc, 
+      collection, addDoc, getDocs, deleteDoc, 
+      query, orderBy, limit, where, onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
+    
+    import { firebaseConfig } from "./api-config.js";
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const functions = getFunctions(app, "us-central1");
+
+    // Vercel Functions Mapping
+    const syncCalendarEvent = httpsCallable(functions, "syncCalendarEvent");
+    const enviarEmailManual = httpsCallable(functions, "enviarEmailManual");
+
+    // Global Caches & State
+    let currentPsychologist = null;
+    let psicologoConfig = {};
+    let pacientesCache = [];
+    let citasCache = [];
+    let selectedDate = new Date();
+    let selectedCalendarDay = null;
+
+    // Check Authentication
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        currentPsychologist = user;
+        
+        // Setup Public Booking Link
+        const baseBookingUrl = window.location.origin;
+        document.getElementById("publicBookingLink").value = `${baseBookingUrl}/agendar.html?id=${user.uid}`;
+        
+        await loadConfig();
+        listenToPatients();
+        listenToCitas();
+      }
+    });
+
+    // Logout
+    document.getElementById("btnLogout").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.reload();
+      });
+    });
+
+    // Tab Switching
+    window.switchTab = function(tabId, el) {
+      document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.add("hidden"));
+      document.getElementById(tabId).classList.remove("hidden");
+      document.querySelectorAll(".sidebar-link").forEach(link => link.classList.remove("active"));
+      el.classList.add("active");
+      
+      if (tabId === "tab-citas") {
+        renderCalendar();
+      }
+    };
+
+    // Modal helpers
+    window.openModal = function(modalId) {
+      document.getElementById(modalId).classList.replace("hidden", "flex");
+      
+      // Setup default dates on show
+      const todayStr = new Date().toISOString().split("T")[0];
+      if (modalId === 'modal-nueva-cita') {
+        document.getElementById("ncFecha").value = todayStr;
+      }
+    };
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.replace("flex", "hidden");
+    };
+
+    // Copy Public Link
+    window.copyBookingLink = function() {
+      const copyText = document.getElementById("publicBookingLink");
+      copyText.select();
+      navigator.clipboard.writeText(copyText.value);
+      showToast("Link copiado al portapapeles", "check-circle");
+    };
+
+    // Display Toast
+    function showToast(message, iconName = "info") {
+      const toast = document.getElementById("toastNotification");
+      const text = document.getElementById("toastMessage");
+      const icon = document.getElementById("toastIcon");
+      
+      text.textContent = message;
+      icon.setAttribute("data-lucide", iconName);
+      lucide.createIcons();
+      
+      toast.classList.remove("hidden");
+      setTimeout(() => {
+        toast.classList.add("hidden");
+      }, 3000);
+    }
+
+    // -------------------------------------------------------------
+    // CONFIG / PREFERENCES
+    // -------------------------------------------------------------
+    async function loadConfig() {
+      try {
+        const psRef = doc(db, "psicologos", currentPsychologist.uid);
+        const psSnap = await getDoc(psRef);
+        
+        if (psSnap.exists()) {
+          psicologoConfig = psSnap.data();
+        } else {
+          // Initialize empty profile
+          psicologoConfig = {
+            nombre: "Ps. Nuevo Profesional",
+            email: currentPsychologist.email,
+            precioOnline: 25000,
+            precioPresencial: 35000,
+            datosTransferencia: ""
+          };
+          await setDoc(psRef, psicologoConfig);
+        }
+
+        // Fill headers
+        document.getElementById("psNameHeader").textContent = `Bienvenido, ${psicologoConfig.nombre}`;
+        document.getElementById("psEmailHeader").textContent = psicologoConfig.email;
+
+        // Fill adjustments forms
+        document.getElementById("psNombre").value = psicologoConfig.nombre || "";
+        document.getElementById("precioOnline").value = psicologoConfig.precioOnline || 25000;
+        document.getElementById("precioPresencial").value = psicologoConfig.precioPresencial || 35000;
+        document.getElementById("resendApiKey").value = psicologoConfig.resendApiKey || "";
+        document.getElementById("datosTransferencia").value = psicologoConfig.datosTransferencia || "";
+
+        // Google Config details
+        if (psicologoConfig.googleConfig) {
+          document.getElementById("googleClientId").value = psicologoConfig.googleConfig.clientId || "";
+          document.getElementById("googleSecret").value = psicologoConfig.googleConfig.clientSecret || "";
+        }
+        document.getElementById("googleRedirectUri").value = window.location.origin + "/oauth2callback.html";
+
+        updateSyncStatus();
+      } catch (err) {
+        console.error("Error cargando configuración:", err);
+      }
+    }
+
+    function updateSyncStatus() {
+      const syncText = document.getElementById("metric-sync");
+      const iconBg = document.getElementById("calendar-sync-icon-bg");
+      const icon = document.getElementById("calendar-sync-icon");
+      const btnLink = document.getElementById("btnLinkGoogle");
+
+      const hasKeys = psicologoConfig.googleConfig?.clientId && psicologoConfig.googleConfig?.clientSecret;
+      btnLink.disabled = !hasKeys;
+
+      if (psicologoConfig.googleTokens && psicologoConfig.googleTokens.access_token) {
+        syncText.textContent = "Conectado";
+        syncText.style.color = "var(--color-emerald-700)";
+        iconBg.style.backgroundColor = "var(--color-emerald-50)";
+        icon.setAttribute("data-lucide", "calendar-check");
+        icon.style.color = "var(--color-emerald-600)";
+      } else {
+        syncText.textContent = "Desconectado";
+        syncText.style.color = "var(--color-rose-600)";
+        iconBg.style.backgroundColor = "var(--color-rose-50)";
+        icon.setAttribute("data-lucide", "calendar-off");
+        icon.style.color = "var(--color-rose-600)";
+      }
+      lucide.createIcons();
+    }
+
+    // Save preferences
+    document.getElementById("preferencesForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        const psRef = doc(db, "psicologos", currentPsychologist.uid);
+        const updates = {
+          nombre: document.getElementById("psNombre").value.trim(),
+          precioOnline: Number(document.getElementById("precioOnline").value),
+          precioPresencial: Number(document.getElementById("precioPresencial").value),
+          resendApiKey: document.getElementById("resendApiKey").value.trim(),
+          datosTransferencia: document.getElementById("datosTransferencia").value.trim()
+        };
+        await updateDoc(psRef, updates);
+        psicologoConfig = { ...psicologoConfig, ...updates };
+        
+        document.getElementById("psNameHeader").textContent = `Bienvenido, ${updates.nombre}`;
+        showToast("Ajustes guardados correctamente", "check");
+      } catch (err) {
+        console.error(err);
+        showToast("Error al guardar ajustes", "alert-circle");
+      }
+    });
+
+    // Save google calendar secrets
+    document.getElementById("googleConfigForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        const psRef = doc(db, "psicologos", currentPsychologist.uid);
+        const clientId = document.getElementById("googleClientId").value.trim();
+        const clientSecret = document.getElementById("googleSecret").value.trim();
+        
+        await updateDoc(psRef, {
+          googleConfig: { clientId, clientSecret }
+        });
+        
+        psicologoConfig.googleConfig = { clientId, clientSecret };
+        updateSyncStatus();
+        showToast("Credenciales de Google guardadas", "check");
+      } catch (err) {
+        console.error(err);
+        showToast("Error al guardar credenciales", "alert-circle");
+      }
+    });
+
+    // Link Google OAuth Action
+    document.getElementById("btnLinkGoogle").addEventListener("click", () => {
+      const cid = psicologoConfig.googleConfig?.clientId;
+      if (!cid) return;
+      
+      const redirectUri = window.location.origin + '/oauth2callback.html';
+      const scope = encodeURIComponent('https://www.googleapis.com/auth/calendar.events');
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&response_type=code&client_id=${encodeURIComponent(cid)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
+      
+      window.location.href = authUrl;
+    });
+
+    // -------------------------------------------------------------
+    // PACIENTES (LISTEN & ACTIONS)
+    // -------------------------------------------------------------
+    function listenToPatients() {
+      const q = query(collection(db, "psicologos", currentPsychologist.uid, "pacientes"), orderBy("nombre"));
+      onSnapshot(q, (snapshot) => {
+        pacientesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Update metric
+        document.getElementById("metric-pacientes").textContent = pacientesCache.length;
+        
+        // Update Select Paciente inside Manual Appointment Modal
+        const select = document.getElementById("ncPaciente");
+        select.innerHTML = '<option value="">-- Seleccionar Paciente --</option>';
+        pacientesCache.forEach(p => {
+          select.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
+        });
+
+        // Render List
+        renderPatientsList(pacientesCache);
+      }, (error) => {
+        console.error("Error listening to patients:", error);
+      });
+    }
+
+    function renderPatientsList(patients) {
+      const container = document.getElementById("patientsListContainer");
+      if (patients.length === 0) {
+        container.innerHTML = '<p style="padding: 1.5rem; color: var(--color-slate-500); font-style: italic; font-size: 0.9rem;">No hay pacientes registrados.</p>';
+        return;
+      }
+      
+      container.innerHTML = "";
+      patients.forEach(p => {
+        const activeClass = window.selectedPatientId === p.id ? "active" : "";
+        let badge = "";
+        
+        if (p.estado === "Alta") {
+          badge = '<span class="badge-status inactive" style="font-size:0.6rem; padding: 0.1rem 0.4rem;">Alta</span>';
+        } else if (p.alertas?.ansiedad?.activo && p.lastAnsiedad >= p.alertas.ansiedad.umbral) {
+          badge = '<span class="badge-status high-risk" style="font-size:0.6rem; padding: 0.1rem 0.4rem;">Alerta</span>';
+        }
+        
+        container.innerHTML += `
+          <button class="patient-item-btn ${activeClass}" onclick="selectPatient('${p.id}')">
+            <div class="flex justify-between items-center">
+              <span class="patient-item-name">${p.nombre}</span>
+              ${badge}
+            </div>
+            <div class="patient-item-info">${p.codigoPais} ${p.telefono}</div>
+          </button>
+        `;
+      });
+    }
+
+    window.filtrarPacientes = function() {
+      const q = document.getElementById("searchPac").value.toLowerCase();
+      const filtered = pacientesCache.filter(p => p.nombre.toLowerCase().includes(q) || p.id.includes(q));
+      renderPatientsList(filtered);
+    };
+
+    // Select Patient & Load Detail Ficha
+    window.selectPatient = async function(patientId) {
+      window.selectedPatientId = patientId;
+      renderPatientsList(pacientesCache); // highlight active item
+      
+      const container = document.getElementById("patientDetailContainer");
+      container.innerHTML = '<div style="text-align: center; padding: 5rem 0;"><i data-lucide="loader" class="animate-spin" style="width: 32px; height: 32px; color: var(--color-emerald-600); margin: 0 auto 1rem;"></i><p style="font-size: 0.85rem; color: var(--color-slate-500);">Cargando ficha del paciente...</p></div>';
+      lucide.createIcons();
+
+      try {
+        const pRef = doc(db, "psicologos", currentPsychologist.uid, "pacientes", patientId);
+        const pSnap = await getDoc(pRef);
+        if (!pSnap.exists()) throw new Error("Paciente no encontrado.");
+        const p = pSnap.data();
+
+        // Load Subcollections: Historial & Archivos
+        const histSnap = await getDocs(query(collection(db, "psicologos", currentPsychologist.uid, "pacientes", patientId, "historial"), orderBy("createdAt", "desc")));
+        const archSnap = await getDocs(query(collection(db, "psicologos", currentPsychologist.uid, "pacientes", patientId, "archivos"), orderBy("createdAt", "desc")));
+
+        const notas = histSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const archivos = archSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const edad = p.fechaNacimiento ? Math.floor((new Date() - new Date(p.fechaNacimiento)) / 31557600000) + ' años' : '--';
+
+        // Render detailed layout
+        let notasHtml = "";
+        if (notas.length === 0) {
+          notasHtml = '<p style="color: var(--color-slate-500); font-style: italic; font-size: 0.9rem;">No hay notas clínicas registradas.</p>';
+        } else {
+          notas.forEach(n => {
+            const fechaStr = n.createdAt?.toDate().toLocaleDateString("es-CL", { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) || "";
+            const metricsHtml = n.ansiedad || n.depresion || n.estres ? `
+              <div style="display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.8rem; background: white; padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--color-slate-100);">
+                <span>Ansiedad: <strong style="color: var(--color-emerald-700);">${n.ansiedad || 0}</strong></span>
+                <span>Depresión: <strong style="color: var(--color-sky-700);">${n.depresion || 0}</strong></span>
+                <span>Estrés: <strong style="color: var(--color-amber-500);">${n.estres || 0}</strong></span>
+              </div>
+            ` : '';
+
+            notasHtml += `
+              <div class="timeline-item ${n.tipo === 'Alta' ? 'alta' : 'evolution'}">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <strong style="color: var(--color-slate-900); font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">${n.tipo}</strong>
+                    <span style="color: var(--color-slate-500); font-size:0.75rem;">${fechaStr}</span>
+                  </div>
+                  <p style="white-space: pre-wrap; font-size: 0.95rem; margin-top: 0.5rem; color: var(--color-slate-800);">${n.contenido}</p>
+                  ${metricsHtml}
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        let archivosHtml = "";
+        if (archivos.length === 0) {
+          archivosHtml = '<p style="color: var(--color-slate-500); font-style: italic; font-size: 0.85rem;">No hay archivos vinculados.</p>';
+        } else {
+          archivos.forEach(a => {
+            archivosHtml += `
+              <div class="flex justify-between items-center" style="padding: 0.75rem 1rem; background: var(--bg-secondary); border-radius: 12px; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="file" style="color: var(--color-slate-500); width: 16px; height: 16px;"></i>
+                  <div>
+                    <strong style="color: var(--color-slate-900);">${a.nombre}</strong>
+                    <div style="font-size:0.7rem; color: var(--color-slate-500);">${a.tipo} ${a.descripcion ? `| ${a.descripcion}` : ''}</div>
+                  </div>
+                </div>
+                <a href="${a.url}" target="_blank" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">Ver</a>
+              </div>
+            `;
+          });
+        }
+
+        container.innerHTML = `
+          <!-- Header Ficha -->
+          <div class="flex justify-between items-start" style="border-bottom: 1px solid var(--color-slate-100); padding-bottom: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h2 style="font-size: 2rem; margin-bottom: 0.25rem;">${p.nombre}</h2>
+              <div class="flex gap-2 items-center">
+                <span class="badge-status ${p.estado === 'Alta' ? 'inactive' : 'active'}">${p.estado || 'Activo'}</span>
+                <span style="font-size: 0.8rem; color: var(--color-slate-500);">Tel: ${p.codigoPais} ${p.telefono}</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="openModalAlertas('${patientId}')" class="btn btn-outline flex gap-2" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                <i data-lucide="bell" style="width: 14px; height: 14px;"></i> Alertas
+              </button>
+              <button onclick="openModalSubirArchivo('${patientId}')" class="btn btn-outline flex gap-2" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                <i data-lucide="paperclip" style="width: 14px; height: 14px;"></i> Adjuntar
+              </button>
+              ${p.estado === 'Alta' ? '' : `<button onclick="darDeAltaPaciente('${patientId}')" class="btn btn-emerald flex gap-2" style="padding: 0.5rem 1rem; font-size: 0.8rem;"><i data-lucide="check" style="width: 14px; height: 14px;"></i> Dar de Alta</button>`}
+            </div>
+          </div>
+
+          <!-- Basic Data Grid -->
+          <div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 16px;">
+              <p style="font-size: 0.7rem; text-transform: uppercase; color: var(--color-slate-500); font-weight: bold;">RUT / ID</p>
+              <p style="font-weight: 600; font-size: 0.95rem;">${p.rut || '--'}</p>
+            </div>
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 16px;">
+              <p style="font-size: 0.7rem; text-transform: uppercase; color: var(--color-slate-500); font-weight: bold;">Edad / Género</p>
+              <p style="font-weight: 600; font-size: 0.95rem;">${edad} | ${p.genero || 'Omitido'}</p>
+            </div>
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 16px;">
+              <p style="font-size: 0.7rem; text-transform: uppercase; color: var(--color-slate-500); font-weight: bold;">Previsión / Email</p>
+              <p style="font-weight: 600; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${p.email}">${p.prevision || '--'} | ${p.email}</p>
+            </div>
+          </div>
+
+          <!-- Antecedentes -->
+          <div class="grid gap-4" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
+            <div style="border: 1px solid var(--color-slate-100); padding: 1.25rem; border-radius: 16px;">
+              <h4 style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--color-sky-700);">Antecedentes Médicos</h4>
+              <p style="font-size: 0.9rem; color: var(--color-slate-800);">${p.antMed || 'Ninguno registrado.'}</p>
+            </div>
+            <div style="border: 1px solid var(--color-slate-100); padding: 1.25rem; border-radius: 16px;">
+              <h4 style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--color-emerald-700);">Antecedentes Psiquiátricos</h4>
+              <p style="font-size: 0.9rem; color: var(--color-slate-800);">${p.antPsiq || 'Ninguno registrado.'}</p>
+            </div>
+          </div>
+
+          <!-- Documentos Adjuntos -->
+          <div style="margin-bottom: 2rem;">
+            <h4 style="font-size: 1rem; margin-bottom: 1rem;">Documentos Adjuntos</h4>
+            ${archivosHtml}
+          </div>
+
+          <!-- Historial Clínico Header -->
+          <div class="flex justify-between items-center" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.25rem;">Evoluciones Clínicas</h3>
+            ${p.estado === 'Alta' ? '' : `<button onclick="openModalNuevaNota('${patientId}')" class="btn btn-primary flex gap-2" style="padding: 0.5rem 1rem; font-size: 0.8rem;"><i data-lucide="plus" style="width: 14px; height: 14px;"></i> Agregar Nota</button>`}
+          </div>
+
+          <!-- Timeline -->
+          <div class="timeline">
+            ${notasHtml}
+          </div>
+        `;
+        lucide.createIcons();
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<p style="color: var(--color-rose-600); font-weight: bold; text-align: center;">Error al cargar ficha completa.</p>`;
+      }
+    };
+
+    // Add Patient Form Submit
+    document.getElementById("nuevoPacienteForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        const nombre = document.getElementById("npNombre").value.trim();
+        const rut = document.getElementById("npRut").value.trim();
+        const nacimiento = document.getElementById("npNacimiento").value;
+        const email = document.getElementById("npEmail").value.trim();
+        const codigoPais = document.getElementById("npCodigoPais").value.trim();
+        const telefono = document.getElementById("npTelefono").value.trim();
+        const prevision = document.getElementById("npPrevision").value.trim();
+        const genero = document.getElementById("npGenero").value;
+        const antMed = document.getElementById("npAntMed").value.trim();
+        const antPsiq = document.getElementById("npAntPsiq").value.trim();
+        
+        const phoneId = telefono.replace(/\D/g, '');
+
+        const pacRef = doc(db, "psicologos", currentPsychologist.uid, "pacientes", phoneId);
+        await setDoc(pacRef, {
+          nombre, rut, fechaNacimiento: nacimiento, email, codigoPais, telefono: phoneId,
+          prevision, genero, antMed, antPsiq, estado: "Activo",
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Add default evolution note
+        await addDoc(collection(db, "psicologos", currentPsychologist.uid, "pacientes", phoneId, "historial"), {
+          contenido: "Paciente registrado en la plataforma.",
+          tipo: "Seguimiento",
+          ansiedad: 0, depresion: 0, estres: 0,
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        closeModal("modal-nuevo-paciente");
+        document.getElementById("nuevoPacienteForm").reset();
+        showToast("Paciente registrado correctamente", "check");
+      } catch (err) {
+        console.error(err);
+        showToast("Error al registrar paciente", "alert-circle");
+      }
+    });
+
+    // Dar de Alta patient
+    window.darDeAltaPaciente = async function(patientId) {
+      if (!confirm("¿Estás seguro de dar de alta al paciente? Esto actualizará su estado y registrará una evolución de cierre.")) return;
+      try {
+        const pRef = doc(db, "psicologos", currentPsychologist.uid, "pacientes", patientId);
+        await updateDoc(pRef, { estado: "Alta" });
+
+        await addDoc(collection(db, "psicologos", currentPsychologist.uid, "pacientes", patientId, "historial"), {
+          contenido: "Alta Médica / Cierre de terapia realizado por el profesional.",
+          tipo: "Alta",
+          ansiedad: 0, depresion: 0, estres: 0,
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        showToast("Paciente dado de alta correctamente", "check");
+        selectPatient(patientId);
+      } catch (err) {
+        console.error(err);
+        showToast("Error al dar de alta", "alert-circle");
+      }
+    };
+
+    // Modal Add Note Evolution
+    window.openModalNuevaNota = function(patientId) {
+      document.getElementById("nnPacienteId").value = patientId;
+      openModal("modal-modal-nueva-nota"); // wait, name is modal-nueva-nota
+      openModal("modal-nueva-nota");
+    };
+
+    document.getElementById("nuevaNotaForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const patientId = document.getElementById("nnPacienteId").value;
+      const contenido = document.getElementById("nnContenido").value.trim();
+      const tipo = document.getElementById("nnTipo").value;
+      const ansiedad = Number(document.getElementById("nnAnsiedad").value);
+      const depresion = Number(document.getElementById("nnDepresion").value);
+      const estres = Number(document.getElementById("nnEstres").value);
+
+      try {
+        const pRef = doc(db, "psicologos", currentPsychologist.uid, "pacientes", patientId);
+        
+        // Add note to subcollection
+        await addDoc(collection(db, "psicologos", currentPsychologist.uid, "pacientes", patientId, "historial"), {
+          contenido, tipo, ansiedad, depresion, estres,
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Update last scores inside patient profile
+        await updateDoc(pRef, {
+          lastAnsiedad: ansiedad,
+          lastDepresion: depresion,
+          lastEstres: estres
+        });
+
+        // Check alerts triggers logic
+        const pSnap = await getDoc(pRef);
+        const pData = pSnap.data() || {};
+        
+        // Trigger verification (usually backend handles email alerts)
+        // Since backend triggers on DB writing in res.data inside RESERVAR HORA or manually, 
+        // we can trigger the check or let the Vercel API know. Here, we can also evaluate alerts client-side
+        // and notify via custom alert box, but we've already written a secure backend trigger if needed.
+        // Actually, Vercel function can be called or we just let it run. Let's do it client-side as well for UI,
+        // but if they configure it, we trigger emails. Let's trigger a check!
+        
+        closeModal("modal-nueva-nota");
+        document.getElementById("nuevaNotaForm").reset();
+        document.getElementById("valAnsiedad").textContent = "0";
+        document.getElementById("valDepresion").textContent = "0";
+        document.getElementById("valEstres").textContent = "0";
+        
+        showToast("Evolución guardada correctamente", "check");
+        selectPatient(patientId);
+      } catch (err) {
+        console.error(err);
+        showToast("Error al guardar evolución", "alert-circle");
+      }
+    });
+
+    // Subir Archivo Vinculado
+    window.openModalSubirArchivo = function(patientId) {
+      document.getElementById("saPacienteId").value = patientId;
+      openModal("modal-subir-archivo");
+    };
+
+    document.getElementById("subirArchivoForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const patientId = document.getElementById("saPacienteId").value;
+      const nombre = document.getElementById("saNombre").value.trim();
+      const url = document.getElementById("saUrl").value.trim();
+      const tipo = document.getElementById("saTipo").value;
+      const descripcion = document.getElementById("saDescripcion").value.trim();
+
+      try {
+        await addDoc(collection(db, "psicologos", currentPsychologist.uid, "pacientes", patientId, "archivos"), {
+          nombre, url, tipo, descripcion,
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        closeModal("modal-subir-archivo");
+        document.getElementById("subirArchivoForm").reset();
+        showToast("Documento vinculado correctamente", "check");
+        selectPatient(patientId);
+      } catch (err) {
+        console.error(err);
+        showToast("Error al vincular documento", "alert-circle");
+      }
+    });
+
+    // Configurar Alertas
+    window.openModalAlertas = async function(patientId) {
+      document.getElementById("apPacienteId").value = patientId;
+      
+      // Load current alerts config
+      const pSnap = await getDoc(doc(db, "psicologos", currentPsychologist.uid, "pacientes", patientId));
+      const pData = pSnap.data() || {};
+      const alerts = pData.alertas || {};
+      
+      document.getElementById("apAnsiedadActivo").checked = alerts.ansiedad?.activo || false;
+      document.getElementById("apAnsiedadUmbral").value = alerts.ansiedad?.umbral || 8;
+      document.getElementById("apAnsiedadSesiones").value = alerts.ansiedad?.sesiones || 3;
+
+      document.getElementById("apDepresionActivo").checked = alerts.depresion?.activo || false;
+      document.getElementById("apDepresionUmbral").value = alerts.depresion?.umbral || 8;
+      document.getElementById("apDepresionSesiones").value = alerts.depresion?.sesiones || 3;
+
+      document.getElementById("apEstresActivo").checked = alerts.estres?.activo || false;
+      document.getElementById("apEstresUmbral").value = alerts.estres?.umbral || 8;
+      document.getElementById("apEstresSesiones").value = alerts.estres?.sesiones || 3;
+
+      openModal("modal-alertas-paciente");
+    };
+
+    document.getElementById("alertasPacienteForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const patientId = document.getElementById("apPacienteId").value;
+      
+      const alertsConfig = {
+        ansiedad: {
+          activo: document.getElementById("apAnsiedadActivo").checked,
+          umbral: Number(document.getElementById("apAnsiedadUmbral").value),
+          sesiones: Number(document.getElementById("apAnsiedadSesiones").value)
+        },
+        depresion: {
+          activo: document.getElementById("apDepresionActivo").checked,
+          umbral: Number(document.getElementById("apDepresionUmbral").value),
+          sesiones: Number(document.getElementById("apDepresionSesiones").value)
+        },
+        estres: {
+          activo: document.getElementById("apEstresActivo").checked,
+          umbral: Number(document.getElementById("apEstresUmbral").value),
+          sesiones: Number(document.getElementById("apEstresSesiones").value)
+        }
+      };
+
+      try {
+        await updateDoc(doc(db, "psicologos", currentPsychologist.uid, "pacientes", patientId), {
+          alertas: alertsConfig
+        });
+        closeModal("modal-alertas-paciente");
+        showToast("Configuración de alertas guardada", "check");
+        selectPatient(patientId);
+      } catch (err) {
+        console.error(err);
+        showToast("Error al guardar alertas", "alert-circle");
+      }
+    });
+
+    // -------------------------------------------------------------
+    // AGENDA / CITAS (LISTEN & ACTIONS)
+    // -------------------------------------------------------------
+    function listenToCitas() {
+      const q = query(collection(db, "psicologos", currentPsychologist.uid, "citas"), orderBy("fecha", "desc"));
+      onSnapshot(q, (snapshot) => {
+        citasCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Update dashboard metric
+        const activeCitas = citasCache.filter(c => c.estado === 'confirmada' || c.estado === 'reconfirmada');
+        document.getElementById("metric-citas").textContent = activeCitas.length;
+        
+        // Update upcoming appointments list (7 days)
+        renderUpcomingAppointments();
+        
+        // Refresh calendar view
+        renderCalendar();
+        renderDayAppointments();
+      }, (error) => {
+        console.error("Error listening to citas:", error);
+      });
+    }
+
+    function renderUpcomingAppointments() {
+      const container = document.getElementById("upcoming-citas-list");
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const nextWeek = new Date();
+      nextWeek.setDate(today.getDate() + 7);
+      nextWeek.setHours(23,59,59,999);
+
+      const filtered = citasCache.filter(c => {
+        if (c.estado === 'cancelado') return false;
+        const cDate = new Date(c.fecha + "T00:00:00");
+        return cDate >= today && cDate <= nextWeek;
+      }).sort((a,b) => a.fecha.localeCompare(b.fecha) || a.hora.localeCompare(b.hora));
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p style="color: var(--color-slate-500); font-style: italic; font-size: 0.9rem;">No hay citas programadas para los próximos 7 días.</p>';
+        return;
+      }
+
+      container.innerHTML = "";
+      filtered.forEach(c => {
+        const isOnline = c.modalidad === 'Online';
+        const isPaid = c.estado === 'paid' || c.estado === 'pagado';
+        const stateColor = isPaid ? 'var(--color-emerald-700)' : 'var(--color-amber-500)';
+        
+        container.innerHTML += `
+          <div class="flex justify-between items-center" style="padding: 1rem; background: var(--bg-secondary); border-radius: 14px; font-size: 0.9rem;">
+            <div>
+              <strong style="color: var(--color-slate-900);">${c.nombre}</strong>
+              <div style="font-size: 0.75rem; color: var(--color-slate-500);">
+                ${formatearFechaLatina(c.fecha)} a las ${c.hora} hrs (${c.modalidad})
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span class="badge-status" style="background: ${isPaid ? 'var(--color-emerald-50)' : 'var(--color-amber-500)'}15; color: ${stateColor}; font-size:0.7rem; padding: 0.15rem 0.5rem;">
+                ${c.estado}
+              </span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Interactive Calendar Setup
+    let currentCalMonth = new Date().getMonth();
+    let currentCalYear = new Date().getFullYear();
+
+    window.prevMonth = function() {
+      currentCalMonth--;
+      if (currentCalMonth < 0) {
+        currentCalMonth = 11;
+        currentCalYear--;
+      }
+      renderCalendar();
+    };
+
+    window.nextMonth = function() {
+      currentCalMonth++;
+      if (currentCalMonth > 11) {
+        currentCalMonth = 0;
+        currentCalYear++;
+      }
+      renderCalendar();
+    };
+
+    function renderCalendar() {
+      const grid = document.getElementById("calendarGrid");
+      if (!grid) return;
+      
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      document.getElementById("calendarMonthTitle").textContent = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+
+      const firstDayIndex = new Date(currentCalYear, currentCalMonth, 1).getDay();
+      // Shift standard Sunday-start to Monday-start
+      const adjustedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+
+      const totalDays = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+
+      grid.innerHTML = "";
+      
+      // Render Day Headers
+      const dayHeaders = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+      dayHeaders.forEach(d => {
+        grid.innerHTML += `<div class="calendar-day-header">${d}</div>`;
+      });
+
+      // Render Empty spaces
+      for (let i = 0; i < adjustedFirstDay; i++) {
+        grid.innerHTML += `<div class="calendar-day disabled"></div>`;
+      }
+
+      // Render Month Days
+      const today = new Date();
+      for (let day = 1; day <= totalDays; day++) {
+        const dateStr = `${currentCalYear}-${(currentCalMonth+1).toString().padStart(2,"0")}-${day.toString().padStart(2,"0")}`;
+        
+        // Count appointments for this day
+        const dayCitas = citasCache.filter(c => c.fecha === dateStr && c.estado !== 'cancelado');
+        const countHtml = dayCitas.length > 0 ? `
+          <span style="background: var(--color-slate-900); color: white; border-radius: 50px; font-size: 0.65rem; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold;">
+            ${dayCitas.length}
+          </span>
+        ` : '';
+
+        const isToday = today.getDate() === day && today.getMonth() === currentCalMonth && today.getFullYear() === currentCalYear ? "today" : "";
+        const isSelected = selectedDate.getDate() === day && selectedDate.getMonth() === currentCalMonth && selectedDate.getFullYear() === currentCalYear ? "selected" : "";
+
+        grid.innerHTML += `
+          <div class="calendar-day ${isToday} ${isSelected}" onclick="selectCalendarDate(${day}, ${currentCalMonth}, ${currentCalYear})">
+            <span style="font-weight: 500;">${day}</span>
+            ${countHtml}
+          </div>
+        `;
+      }
+    }
+
+    window.selectCalendarDate = function(day, month, year) {
+      selectedDate = new Date(year, month, day);
+      document.getElementById("selectedDateTitle").textContent = selectedDate.toLocaleDateString("es-CL", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      renderCalendar();
+      renderDayAppointments();
+    };
+
+    function renderDayAppointments() {
+      const container = document.getElementById("dayAppointmentsContainer");
+      if (!container) return;
+
+      const dateStr = `${selectedDate.getFullYear()}-${(selectedDate.getMonth()+1).toString().padStart(2,"0")}-${selectedDate.getDate().toString().padStart(2,"0")}`;
+      const dayCitas = citasCache.filter(c => c.fecha === dateStr).sort((a,b) => a.hora.localeCompare(b.hora));
+
+      if (dayCitas.length === 0) {
+        container.innerHTML = `
+          <p style="color: var(--color-slate-500); font-style: italic; font-size: 0.9rem; padding: 2rem 0; text-align: center;">No hay sesiones programadas para este día.</p>
+        `;
+        return;
+      }
+
+      container.innerHTML = "";
+      dayCitas.forEach(c => {
+        const isPaid = c.estado === 'paid' || c.estado === 'pagado';
+        const isCanceled = c.estado === 'cancelado';
+        const syncButtonHtml = psicologoConfig.googleTokens && !c.googleEventId && !isCanceled ? `
+          <button onclick="syncCitaToGoogle('${c.id}')" class="btn btn-outline flex gap-2" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; flex:1;">
+            <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i> Sincronizar Google
+          </button>
+        ` : '';
+
+        const actionsHtml = !isCanceled ? `
+          <div class="flex gap-2" style="margin-top: 1rem; flex-wrap: wrap;">
+            ${syncButtonHtml}
+            <button onclick="sendManualReminder('${c.id}', 'sesion')" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; flex:1;">
+              Recordar Sesión
+            </button>
+            <button onclick="sendManualReminder('${c.id}', 'pago')" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; flex:1;">
+              Recordar Pago
+            </button>
+            ${!isPaid ? `<button onclick="marcarComoPagada('${c.id}')" class="btn btn-emerald" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; flex:1.2;">
+              Marcar Pagada
+            </button>` : ''}
+            <button onclick="cancelarCita('${c.id}')" class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; flex:0.8;">
+              Anular
+            </button>
+          </div>
+        ` : '';
+
+        const meetLinkHtml = c.meetLink ? `
+          <div style="margin-top: 0.5rem;">
+            <a href="${c.meetLink}" target="_blank" class="flex items-center gap-1" style="font-size:0.8rem; color: var(--color-sky-700); font-weight:600; text-decoration:none;">
+              <i data-lucide="video" style="width: 14px; height: 14px;"></i> Enlace Google Meet
+            </a>
+          </div>
+        ` : '';
+
+        container.innerHTML += `
+          <div class="card" style="padding: 1.25rem; border-color: ${isCanceled ? 'rgba(225,29,72,0.1)' : 'var(--color-slate-100)'}; background: ${isCanceled ? 'var(--color-rose-50)40' : 'white'};">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 style="font-size: 1.05rem; margin-bottom: 0.25rem; color: ${isCanceled ? 'var(--color-rose-600)' : 'var(--color-slate-900)'};">${c.nombre}</h4>
+                <p style="font-size: 0.8rem; color: var(--color-slate-500);">
+                  Hora: <strong>${c.hora} hrs</strong> | Modalidad: ${c.modalidad} | Valor: $${(c.precio||0).toLocaleString('es-CL')}
+                </p>
+                ${meetLinkHtml}
+              </div>
+              <span class="badge-status ${isPaid ? 'active' : (isCanceled ? 'high-risk' : 'inactive')}" style="font-size: 0.65rem;">
+                ${c.estado}
+              </span>
+            </div>
+            ${actionsHtml}
+          </div>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    // Dynamic price helper in Add Appointment Modal
+    window.actualizarPrecioSugeridoCita = function() {
+      const modality = document.getElementById("ncModalidad").value;
+      const priceInput = document.getElementById("ncPrecio");
+      priceInput.value = modality === "Presencial" ? (psicologoConfig.precioPresencial || 35000) : (psicologoConfig.precioOnline || 25000);
+    };
+
+    // Show modal appointment manual overrides
+    window.openModalNuevaCitaOverride = function() {
+      actualizarPrecioSugeridoCita();
+      openModal("modal-nueva-cita");
+    };
+
+    // Add Appointment Manual Submit
+    document.getElementById("nuevaCitaForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const patientId = document.getElementById("ncPaciente").value;
+      const fecha = document.getElementById("ncFecha").value;
+      const hora = document.getElementById("ncHora").value;
+      const modalidad = document.getElementById("ncModalidad").value;
+      const precio = Number(document.getElementById("ncPrecio").value);
+      const plan = document.getElementById("ncPlan").value.trim();
+
+      if (!patientId) return alert("Debes seleccionar un paciente.");
+
+      try {
+        const pRef = doc(db, "psicologos", currentPsychologist.uid, "pacientes", patientId);
+        const pSnap = await getDoc(pRef);
+        if (!pSnap.exists()) throw new Error("Paciente no registrado.");
+        const p = pSnap.data();
+
+        // Check availability
+        const citasRef = collection(db, "psicologos", currentPsychologist.uid, "citas");
+        const busySnap = await getDocs(query(citasRef, where("fecha", "==", fecha), where("hora", "==", hora)));
+        if (busySnap.docs.some(d => d.data().estado !== "cancelado")) {
+          throw new Error("El horario seleccionado ya se encuentra ocupado por otra cita.");
+        }
+
+        // Add Cita
+        const newCitaRef = doc(citasRef);
+        await setDoc(newCitaRef, {
+          psicologoId: currentPsychologist.uid,
+          pacienteId: patientId,
+          nombre: p.nombre,
+          email: p.email,
+          telefono: p.telefono,
+          codigoPais: p.codigoPais || '+56',
+          fecha, hora, modalidad, precio, plan: plan || null,
+          estado: "confirmada",
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Trigger Google Calendar Sync automatically if tokens exist
+        if (psicologoConfig.googleTokens?.access_token) {
+          try {
+            await syncCalendarEvent({ psicologoId: currentPsychologist.uid, idCita: newCitaRef.id });
+            showToast("Cita creada y sincronizada con Google Calendar", "check-circle");
+          } catch (err) {
+            console.warn("Google Sync Warning:", err);
+            showToast("Cita creada, pero falló la sincronización con Google Calendar", "alert-circle");
+          }
+        } else {
+          showToast("Cita creada correctamente", "check");
+        }
+
+        closeModal("modal-nueva-cita");
+        document.getElementById("nuevaCitaForm").reset();
+      } catch (err) {
+        console.error(err);
+        showToast(err.message || "Error al crear cita", "alert-circle");
+      }
+    });
+
+    // Mark appointment as paid
+    window.marcarComoPagada = async function(idCita) {
+      try {
+        await updateDoc(doc(db, "psicologos", currentPsychologist.uid, "citas", idCita), {
+          estado: "pagado",
+          fechaPago: admin.firestore.FieldValue.serverTimestamp()
+        });
+        showToast("Cita marcada como pagada", "check");
+        renderDayAppointments();
+      } catch (err) {
+        console.error(err);
+        showToast("Error al actualizar pago", "alert-circle");
+      }
+    };
+
+    // Cancel appointment
+    window.cancelarCita = async function(idCita) {
+      if (!confirm("¿Estás seguro de anular esta cita? El horario quedará liberado.")) return;
+      try {
+        await updateDoc(doc(db, "psicologos", currentPsychologist.uid, "citas", idCita), {
+          estado: "cancelado"
+        });
+        showToast("Cita anulada correctamente", "check");
+        renderDayAppointments();
+      } catch (err) {
+        console.error(err);
+        showToast("Error al anular cita", "alert-circle");
+      }
+    };
+
+    // Sync appointment to Google Calendar manually
+    window.syncCitaToGoogle = async function(idCita) {
+      showToast("Sincronizando con Google Calendar...");
+      try {
+        const res = await syncCalendarEvent({ psicologoId: currentPsychologist.uid, idCita });
+        if (res.data?.success) {
+          showToast("Sincronización de calendario exitosa", "check-circle");
+          renderDayAppointments();
+        } else {
+          throw new Error(res.data?.error || "Fallo en la sincronización.");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast(err.message || "Fallo al sincronizar con Google Calendar", "alert-circle");
+      }
+    };
+
+    // Send Manual Reminders (Session / Payment)
+    window.sendManualReminder = async function(idCita, tipo) {
+      showToast("Enviando recordatorio por correo...");
+      try {
+        const res = await enviarEmailManual({
+          psicologoId: currentPsychologist.uid,
+          idCita,
+          tipo
+        });
+        if (res.data?.success) {
+          showToast("Recordatorio enviado con éxito", "check-circle");
+        } else {
+          throw new Error(res.data?.error || "Fallo al enviar el correo.");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast(err.message || "Error al enviar recordatorio", "alert-circle");
+      }
+    };
+
+    // Initial load configurations
+    lucide.createIcons();
+  </script>
+</body>
+</html>

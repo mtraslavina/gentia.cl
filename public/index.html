@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gentia | Gestión Clínica & Agendamiento Inteligente para Psicólogos</title>
+  <meta name="description" content="La plataforma más moderna, segura y económica para psicólogos en Chile. Agenda pacientes, gestiona fichas clínicas y sincroniza con Google Calendar por una fracción del precio.">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header style="background: rgba(252, 251, 249, 0.8); backdrop-filter: blur(8px); position: fixed; width: 100%; top: 0; z-index: 50; border-bottom: 1px solid var(--color-slate-100);">
+    <div class="container flex justify-between items-center" style="height: 80px;">
+      <a href="index.html" class="flex items-center gap-2" style="text-decoration: none; font-size: 1.5rem; font-family: var(--font-serif); font-weight: 800; color: var(--color-slate-900);">
+        <i data-lucide="brain-circuit" style="color: var(--color-emerald-600); width: 28px; height: 28px;"></i>
+        gentia<span style="color: var(--color-emerald-600);">.cl</span>
+      </a>
+      
+      <div class="flex items-center gap-6">
+        <a href="#caracteristicas" style="text-decoration: none; color: var(--color-slate-500); font-weight: 500; font-size: 0.9rem;">Características</a>
+        <a href="#precios" style="text-decoration: none; color: var(--color-slate-500); font-weight: 500; font-size: 0.9rem;">Precios</a>
+        <a href="login.html" class="btn btn-outline" style="padding: 0.5rem 1.25rem;">Ingreso Psicólogos</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--color-emerald-50); color: var(--color-emerald-700); padding: 0.5rem 1.25rem; border-radius: 50px; font-weight: 600; font-size: 0.8rem; margin-bottom: 2rem; border: 1px solid rgba(5, 150, 105, 0.1);">
+        <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+        Lanzamiento 2026: 30 Días de Prueba Gratis
+      </div>
+      <h1>Gestión clínica moderna,<br>sin precios inflados.</h1>
+      <p>Diseñada específicamente para psicólogos. Organiza tus sesiones, automatiza recordatorios de pago y resguarda fichas clínicas con seguridad de grado médico. Todo en un solo lugar.</p>
+      
+      <div class="flex justify-center gap-4">
+        <a href="#precios" class="btn btn-emerald">Ver Planes y Precios</a>
+        <a href="login.html" class="btn btn-outline">Probar Gratis Ahora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="caracteristicas" class="features">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 4rem;">
+        <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Diseñado para simplificar tu consulta</h2>
+        <p style="color: var(--color-slate-500); max-width: 600px; margin: 0 auto;">Todas las herramientas que utilizas a diario en una interfaz rápida, intuitiva y profesional.</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Card 1 -->
+        <div class="card" style="padding: 2rem;">
+          <div style="width: 48px; height: 48px; background: var(--color-emerald-50); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+            <i data-lucide="calendar" style="color: var(--color-emerald-600);"></i>
+          </div>
+          <h3 style="margin-bottom: 0.75rem; font-size: 1.25rem;">Agendamiento Público</h3>
+          <p style="color: var(--color-slate-500); font-size: 0.95rem;">Comparte tu link de reserva pública para que tus pacientes agenden de manera directa e intuitiva de acuerdo con tu disponibilidad real.</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card" style="padding: 2rem;">
+          <div style="width: 48px; height: 48px; background: var(--color-sky-50); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+            <i data-lucide="file-text" style="color: var(--color-sky-600);"></i>
+          </div>
+          <h3 style="margin-bottom: 0.75rem; font-size: 1.25rem;">Fichas Clínicas Seguras</h3>
+          <p style="color: var(--color-slate-500); font-size: 0.95rem;">Registra notas de evolución y asocia archivos confidenciales. Monitorea puntajes clínicos de ansiedad, estrés y depresión.</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card" style="padding: 2rem;">
+          <div style="width: 48px; height: 48px; background: rgba(245, 158, 11, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+            <i data-lucide="bell" style="color: var(--color-amber-500);"></i>
+          </div>
+          <h3 style="margin-bottom: 0.75rem; font-size: 1.25rem;">Recordatorios Inteligentes</h3>
+          <p style="color: var(--color-slate-500); font-size: 0.95rem;">Envía recordatorios automáticos o manuales de pago y sesiones por correo electrónico para reducir inasistencias y cuentas pendientes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Google Calendar Integration Pitch -->
+  <section style="padding: 6rem 0; background: #fff;">
+    <div class="container flex justify-between items-center" style="flex-wrap: wrap; gap: 3rem;">
+      <div style="flex: 1; min-width: 320px;">
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--color-sky-50); color: var(--color-sky-700); padding: 0.5rem 1rem; border-radius: 50px; font-weight: 600; font-size: 0.75rem; margin-bottom: 1.5rem;">
+          <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i>
+          Sincronización Bidireccional
+        </div>
+        <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;">Conéctate con tu Google Calendar</h2>
+        <p style="color: var(--color-slate-500); margin-bottom: 2rem; font-size: 1.05rem;">Vincula tu calendario personal o profesional en un par de clics. Cada vez que agendes en Gentia, la cita se agregará automáticamente a tu Google Calendar incluyendo un enlace a Google Meet si la sesión es online.</p>
+        
+        <ul style="list-style: none; space-y: 1rem; margin-bottom: 2.5rem;">
+          <li class="flex items-center gap-2" style="margin-bottom: 0.75rem; color: var(--color-slate-800);"><i data-lucide="check-circle" style="color: var(--color-emerald-600); width: 18px; height: 18px;"></i> Sincronización en tiempo real</li>
+          <li class="flex items-center gap-2" style="margin-bottom: 0.75rem; color: var(--color-slate-800);"><i data-lucide="check-circle" style="color: var(--color-emerald-600); width: 18px; height: 18px;"></i> Creación automática de enlaces Google Meet</li>
+          <li class="flex items-center gap-2" style="margin-bottom: 0.75rem; color: var(--color-slate-800);"><i data-lucide="check-circle" style="color: var(--color-emerald-600); width: 18px; height: 18px;"></i> Evita el solapamiento de horarios</li>
+        </ul>
+      </div>
+      
+      <div style="flex: 1; min-width: 320px; text-align: center;">
+        <div style="position: relative; display: inline-block; padding: 2rem; background: var(--bg-secondary); border-radius: 40px; border: 1px solid var(--color-slate-100);">
+          <div class="card" style="padding: 1.5rem 2.5rem; display: flex; align-items: center; gap: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); margin-bottom: 1rem;">
+            <i data-lucide="calendar" style="width: 32px; height: 32px; color: var(--color-slate-900);"></i>
+            <div style="text-align: left;">
+              <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Agenda Clínica Gentia</h4>
+              <p style="font-size: 0.8rem; color: var(--color-slate-500);">Actualizado hace un momento</p>
+            </div>
+          </div>
+          <div style="text-align: center; color: var(--color-slate-500); font-weight: bold; font-size: 1.5rem; margin: 0.5rem 0;">
+            <i data-lucide="chevrons-up-down" style="transform: rotate(90deg); color: var(--color-emerald-600);"></i>
+          </div>
+          <div class="card" style="padding: 1.5rem 2.5rem; display: flex; align-items: center; gap: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05);">
+            <svg style="width: 32px; height: 32px;" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.5 24c0-1.63-.15-3.2-.43-4.75H24v9h12.75C36.18 31.06 32.77 34 28.5 35.8l7.98 6.19C41.27 37.3 46.5 31.42 46.5 24z"/>
+              <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.98-6.19c-2.21 1.48-5.04 2.37-7.91 2.37-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            <div style="text-align: left;">
+              <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Google Calendar</h4>
+              <p style="font-size: 0.8rem; color: var(--color-slate-500);">Sincronizado de inmediato</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="precios" class="pricing">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 4rem;">
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--color-emerald-50); color: var(--color-emerald-700); padding: 0.5rem 1rem; border-radius: 50px; font-weight: 600; font-size: 0.75rem; margin-bottom: 1rem;">
+          Planes Claros
+        </div>
+        <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Precios pensados en ti</h2>
+        <p style="color: var(--color-slate-500); max-width: 600px; margin: 0 auto;">Ofrece el mejor servicio a tus pacientes sin tener que pagar comisiones abusivas ni mensualidades excesivas.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Plan 1 -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; border-color: var(--color-slate-100);">
+          <div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Gentia Lite</h3>
+            <p style="color: var(--color-slate-500); font-size: 0.9rem; margin-bottom: 1.5rem;">Esencial para organizar tu consulta y tus fichas clínicas.</p>
+            <div style="margin-bottom: 2rem;">
+              <span style="font-size: 2.5rem; font-weight: 800; color: var(--color-slate-900);">$9.990</span>
+              <span style="color: var(--color-slate-500); font-weight: 500;">/ mes</span>
+            </div>
+            <hr style="border: 0; border-top: 1px solid var(--color-slate-100); margin-bottom: 2rem;">
+            
+            <ul style="list-style: none; space-y: 0.875rem; color: var(--color-slate-800);">
+              <li class="flex items-center gap-2" style="margin-bottom: 0.75rem;"><i data-lucide="check" style="color: var(--color-emerald-600); width: 16px; height: 16px;"></i> Fichas clínicas e historial ilimitado</li>
+              <li class="flex items-center gap-2" style="margin-bottom: 0.75rem;"><i data-lucide="check" style="color: var(--color-emerald-600); width: 16px; height: 16px;"></i> Registro de métricas clínicas</li>
+              <li class="flex items-center gap-2" style="margin-bottom: 0.75rem;"><i data-lucide="check" style="color: var(--color-emerald-600); width: 16px; height: 16px;"></i> Subida de archivos y consentimientos</li>
+              <li class="flex items-center gap-2" style="margin-bottom: 0.75rem;"><i data-lucide="check" style="color: var(--color-emerald-600); width: 16px; height: 16px;"></i> Agendamiento interno de citas</li>
+            </ul>
+          </div>
+          
+          <a href="login.html" class="btn btn-outline" style="width: 100%; margin-top: 2rem;">Probar Lite Gratis</a>
+        </div>
+
+        <!-- Plan 2 -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; border-color: var(--color-emerald-600); box-shadow: 0 20px 40px -15px rgba(5, 150, 105, 0.15);">
+          <div>
+            <div style="display: inline-block; background: var(--color-emerald-50); color: var(--color-emerald-700); padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; border: 1px solid rgba(5, 150, 105, 0.1);">Recomendado</div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Gentia Pro</h3>
+            <p style="color: var(--color-slate-500); font-size: 0.9rem; margin-bottom: 1.5rem;">Automatización total para tu agenda y tus finanzas.</p>
+            <div style="margin-bottom: 2rem;">
+              <span style="font-size: 2.5rem; font-weight: 800; color: var(--color-slate-900);">$14.990</span>
+              <span style="color: var(--color-slate-500); font-weight: 500;">/ mes</span>
+            </div>
+            <hr style="border: 0; border-top: 1px solid var(--color-slate-100); margin-bottom: 2rem;">
+            
+            <ul style="list-style: none; space-y: 0.875rem; color: var(--color-slate-800);">
+              <li class="flex items-center gap-2" style="margin-bottom: 0.75rem;"><i data-lucide="check" style="color: var(--color-emerald-600); width: 16px; height: 16px;"></i> Todo lo incluido en Gentia Lite</li>
+              <li class="flex items-center gap-2" style="margin-bottom: 0.75rem;"><i data-lucide="check" style="color: var(--color-emerald-600); width: 16px; height: 16px;"></i> Link de agendamiento público</li>
+              <li class="flex items-center gap-2" style="margin-bottom: 0.75rem;"><i data-lucide="check" style="color: var(--color-emerald-600); width: 16px; height: 16px;"></i> Sincronización con Google Calendar</li>
+              <li class="flex items-center gap-2" style="margin-bottom: 0.75rem;"><i data-lucide="check" style="color: var(--color-emerald-600); width: 16px; height: 16px;"></i> Recordatorios de pago por Correo</li>
+            </ul>
+          </div>
+          
+          <a href="login.html" class="btn btn-emerald" style="width: 100%; margin-top: 2rem;">Probar Pro Gratis</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="background-color: var(--color-slate-900); color: #cbd5e1; padding: 4rem 0; border-top: 1px solid var(--color-slate-800);">
+    <div class="container flex justify-between items-center" style="flex-wrap: wrap; gap: 2rem;">
+      <div>
+        <h3 style="color: #fff; font-family: var(--font-serif); font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">gentia<span style="color: var(--color-emerald-600);">.cl</span></h3>
+        <p style="font-size: 0.85rem; color: var(--color-slate-500);">Solución clínica de alta seguridad para profesionales de la salud mental.</p>
+      </div>
+      <div style="font-size: 0.85rem; color: var(--color-slate-500);">
+        © 2026 gentia.cl. Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

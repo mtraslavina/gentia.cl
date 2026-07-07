@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sincronizando Google Calendar | Gentia</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background-color: var(--color-slate-900); color: white; padding: 1.5rem;">
+  <div id="statusBox" class="card" style="background: rgba(30, 41, 59, 0.9); border-color: rgba(255, 255, 255, 0.1); max-width: 400px; width: 100%; text-align: center; color: white;">
+    <i data-lucide="loader" style="width: 48px; height: 48px; color: var(--color-emerald-600); margin: 0 auto 1.5rem; animation: spin 1.5s linear infinite;" class="animate-spin"></i>
+    <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: white;">Conectando con Google...</h2>
+    <p style="font-size: 0.85rem; color: var(--color-slate-500);">Procesando credenciales seguras de tu calendario...</p>
+  </div>
+
+  <style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js": "./api-config.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
+    import { firebaseConfig } from "./api-config.js";
+    
+    const app = initializeApp(firebaseConfig); 
+    const auth = getAuth(app); 
+    const db = getFirestore(app);
+    const functions = getFunctions(app, "us-central1");
+
+    onAuthStateChanged(auth, async (user) => {
+      const statusBox = document.getElementById('statusBox');
+      
+      if (!user) {
+        statusBox.innerHTML = '<p style="color: var(--color-rose-600); font-weight: bold; margin-bottom: 1rem;">Sesión caducada.</p><a href="login.html" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.2);">Iniciar Sesión</a>';
+        lucide.createIcons();
+        return;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const error = urlParams.get('error');
+
+      if (error) {
+        statusBox.innerHTML = `<p style="color: var(--color-rose-600); font-weight: bold; margin-bottom: 1rem;">Acceso Denegado</p><p style="font-size: 0.8rem; color: var(--color-slate-500); margin-bottom: 1.5rem;">${error}</p><a href="dashboard.html" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.2);">Volver al Dashboard</a>`;
+        lucide.createIcons();
+        return;
+      }
+
+      if (code) {
+        try {
+          // 1. Fetch psychologist google configuration credentials from Firestore directly
+          const psDocRef = doc(db, "psicologos", user.uid);
+          const psDocSnap = await getDoc(psDocRef);
+          
+          if (!psDocSnap.exists()) {
+            throw new Error("No se encontró el perfil de psicólogo en Firestore.");
+          }
+          
+          const psData = psDocSnap.data();
+          const googleConfig = psData.googleConfig || {};
+          
+          if (!googleConfig.clientId || !googleConfig.clientSecret) {
+            throw new Error("No has configurado tu Client ID o Client Secret de Google en la sección de Ajustes.");
+          }
+
+          // 2. Call our Vercel API saveGoogleTokens function using wrapped httpsCallable
+          const saveTokens = httpsCallable(functions, 'saveGoogleTokens');
+          const res = await saveTokens({ 
+            psicologoId: user.uid,
+            code: code, 
+            redirectUri: window.location.origin + '/oauth2callback.html',
+            clientId: googleConfig.clientId,
+            clientSecret: googleConfig.clientSecret
+          });
+          
+          if (res.data && res.data.success === false) {
+            throw new Error(res.data.error || "Error al conectar con la API de Google");
+          }
+          
+          statusBox.innerHTML = '<i data-lucide="check-circle" style="width: 48px; height: 48px; color: var(--color-emerald-600); margin: 0 auto 1.5rem;"></i><h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: white;">¡Vinculación Exitosa!</h2><p style="font-size: 0.85rem; color: var(--color-slate-500);">Tu calendario de Google se ha conectado correctamente. Redirigiendo...</p>';
+          lucide.createIcons();
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+        } catch (err) {
+          console.error(err);
+          statusBox.innerHTML = `<div style="background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.2); padding: 1.5rem; border-radius: 16px; margin-bottom: 1.5rem;"><p style="color: var(--color-rose-600); font-weight: bold; margin-bottom: 0.5rem;">Fallo de Autorización</p><p style="font-size: 0.75rem; color: #cbd5e1; font-family: monospace; word-break: break-all;">${err.message}</p></div><a href="dashboard.html" class="btn btn-emerald">Volver a Ajustes</a>`;
+          lucide.createIcons();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

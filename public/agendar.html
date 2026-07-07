@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservar Hora Médica | Gentia</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* Public page styling extensions */
+    body {
+      background-color: #fafaf9;
+    }
+    .booking-container {
+      max-width: 900px;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+    }
+    .booking-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 2rem;
+    }
+    @media (max-width: 768px) {
+      .booking-grid {
+        grid-template-columns: 1fr;
+      }
+      .booking-container {
+        margin: 2rem auto;
+      }
+    }
+    .day-cell {
+      aspect-ratio: 1;
+      border: 1px solid var(--color-slate-100);
+      background-color: #fff;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      transition: var(--transition-smooth);
+    }
+    .day-cell:hover:not(:disabled) {
+      border-color: var(--color-slate-900);
+      background: var(--bg-secondary);
+      transform: scale(1.05);
+    }
+    .day-cell:disabled {
+      background-color: var(--bg-secondary);
+      color: #cbd5e1;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+    .day-selected {
+      background-color: var(--color-slate-900) !important;
+      color: white !important;
+      font-weight: bold;
+      transform: scale(1.05);
+    }
+    .time-slot {
+      padding: 0.875rem;
+      border: 1px solid var(--color-slate-100);
+      background: white;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--color-slate-800);
+      text-align: center;
+      transition: var(--transition-smooth);
+    }
+    .time-slot:hover:not(:disabled) {
+      border-color: var(--color-slate-900);
+      background: var(--bg-secondary);
+    }
+    .time-slot:disabled {
+      background-color: var(--bg-secondary);
+      color: #cbd5e1;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+    .slot-selected {
+      background-color: var(--color-emerald-600) !important;
+      color: white !important;
+      border-color: var(--color-emerald-600) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header style="background: rgba(252, 251, 249, 0.8); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--color-slate-100);">
+    <div class="container flex justify-between items-center" style="height: 70px;">
+      <span class="flex items-center gap-2" style="font-size: 1.25rem; font-family: var(--font-serif); font-weight: 800; color: var(--color-slate-900);">
+        <i data-lucide="brain-circuit" style="color: var(--color-emerald-600); width: 24px; height: 24px;"></i>
+        gentia<span style="color: var(--color-emerald-600);">.cl</span>
+      </span>
+      <span style="font-size: 0.8rem; color: var(--color-slate-500); font-weight: 500;">Agenda de Reserva Segura</span>
+    </div>
+  </header>
+
+  <div class="booking-container">
+    <!-- Main Psychologist profile summary -->
+    <div class="card" style="margin-bottom: 2rem; padding: 2rem; display: flex; align-items: center; gap: 1.5rem; background: radial-gradient(circle at top right, var(--color-emerald-50)20, transparent);">
+      <div style="width: 56px; height: 56px; background: var(--color-slate-900); color: white; border-radius: 50px; display: flex; align-items: center; justify-content: center; font-family: var(--font-serif); font-size: 1.5rem; font-weight: 800;" id="psAvatar">
+        P
+      </div>
+      <div>
+        <h2 id="psNombre" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Cargando Profesional...</h2>
+        <p style="color: var(--color-slate-500); font-size: 0.85rem;" id="psTarifas">Tarifas estimadas: Cargando...</p>
+      </div>
+    </div>
+
+    <!-- Booking Steps -->
+    <div class="booking-grid">
+      <!-- Step 1 & 2: Date & Time Selector -->
+      <div class="card">
+        <!-- Month Selector Header -->
+        <div class="flex justify-between items-center" style="margin-bottom: 1.5rem;">
+          <h3 id="currentMonthLabel" style="font-size: 1.15rem;">Mes</h3>
+          <div class="flex gap-2">
+            <button class="btn btn-outline" style="padding: 0.4rem 0.8rem;" id="prevMonth"><i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i></button>
+            <button class="btn btn-outline" style="padding: 0.4rem 0.8rem;" id="nextMonth"><i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i></button>
+          </div>
+        </div>
+
+        <!-- Days Grid -->
+        <div class="calendar-grid" id="calendarGrid" style="grid-template-columns: repeat(7, 1fr); gap: 6px; font-size: 0.85rem;">
+          <!-- Injected by JS -->
+        </div>
+
+        <!-- Time Slots Sub-section -->
+        <div id="timeSlotSection" class="hidden" style="margin-top: 2.5rem; border-top: 1px solid var(--color-slate-100); padding-top: 2rem;">
+          <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">Selecciona una hora para el <span id="selectedDateLabel" style="color: var(--color-emerald-700);"></span></h3>
+          <div id="slotsGrid" class="grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Confirmation Form -->
+      <div class="card" style="background: white;">
+        <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem;">Ingresa tus Datos</h3>
+        
+        <div id="initialMessage" style="color: var(--color-slate-500); font-style: italic; font-size: 0.9rem; text-align: center; padding: 4rem 0;">
+          Selecciona una fecha y hora en el calendario para habilitar el formulario de reserva.
+        </div>
+
+        <form id="bookingForm" class="hidden">
+          <div class="form-group">
+            <label for="pNombre">Nombre Completo</label>
+            <input type="text" id="pNombre" class="form-control" required placeholder="Juan Pérez">
+          </div>
+          <div class="form-group">
+            <label for="pEmail">Correo Electrónico</label>
+            <input type="email" id="pEmail" class="form-control" required placeholder="juan@correo.com">
+          </div>
+          <div class="form-group">
+            <label for="pTelefono">Teléfono Celular</label>
+            <div style="display: flex;">
+              <input type="text" id="pCodigoPais" class="form-control" style="width: 70px; border-radius: 14px 0 0 14px; text-align: center; border-right: none;" value="+56">
+              <input type="text" id="pTelefono" class="form-control" style="border-radius: 0 14px 14px 0;" required placeholder="912345678">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="pModalidad">Modalidad de Atención</label>
+            <select id="pModalidad" class="form-control" onchange="actualizarPrecioEstimado()">
+              <option value="Online">Online</option>
+              <option value="Presencial">Presencial</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 2rem;">
+            <label for="pPlan">¿Tienes un Plan/Pack comprado?</label>
+            <input type="text" id="pPlan" class="form-control" placeholder="Ej. Pack 4 Sesiones (Opcional)">
+          </div>
+
+          <div style="background: var(--bg-secondary); padding: 1.25rem; border-radius: 16px; margin-bottom: 2rem; font-size: 0.85rem;">
+            <div class="flex justify-between" style="margin-bottom: 0.5rem;">
+              <span>Cita:</span>
+              <strong id="summaryDateTime">--</strong>
+            </div>
+            <div class="flex justify-between">
+              <span>Monto sugerido a pagar:</span>
+              <strong id="summaryPrice" style="color: var(--color-emerald-700);">--</strong>
+            </div>
+          </div>
+
+          <button type="submit" id="btnSubmit" class="btn btn-emerald" style="width: 100%; justify-content: center;">
+            <span id="btnText">Agendar y Confirmar Cita</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="hidden" style="position: fixed; inset: 0; background: rgba(15,23,42,0.7); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white;">
+    <i data-lucide="loader" style="width: 48px; height: 48px; color: var(--color-emerald-600); margin-bottom: 1rem; animation: spin 1.5s linear infinite;" class="animate-spin"></i>
+    <h3 style="color: white; margin-bottom: 0.25rem;">Procesando Reserva...</h3>
+    <p style="font-size: 0.85rem; color: var(--color-slate-500);">Por favor, no recargues la página.</p>
+  </div>
+
+  <!-- Booking Status Screen -->
+  <div id="bookingStatusModal" class="hidden" style="position: fixed; inset: 0; background: rgba(15,23,42,0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 110; padding: 1.5rem;">
+    <div class="card" style="max-width: 460px; width: 100%; text-align: center; background: white; padding: 3.5rem 2.5rem;">
+      <div id="statusIconBg" style="width: 72px; height: 72px; border-radius: 50px; background: var(--color-emerald-50); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+        <i data-lucide="check-circle" id="statusIcon" style="width: 36px; height: 36px; color: var(--color-emerald-600);"></i>
+      </div>
+      <h2 id="statusTitle" style="font-size: 1.75rem; margin-bottom: 0.75rem; color: var(--color-slate-900);">¡Cita Reservada!</h2>
+      <p id="statusMsg" style="color: var(--color-slate-500); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2.5rem;">Te hemos enviado un correo electrónico con los detalles y el enlace para realizar el pago de la sesión.</p>
+      <button class="btn btn-primary" style="width: 100%;" onclick="window.location.reload()">Entendido</button>
+    </div>
+  </div>
+
+  <style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js": "./api-config.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
+    
+    import { firebaseConfig } from "./api-config.js";
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const functions = getFunctions(app, "us-central1");
+
+    // Vercel Functions Mapping
+    const obtenerDisponibilidadMes = httpsCallable(functions, "obtenerDisponibilidadMes");
+    const reservarHora = httpsCallable(functions, "reservarHora");
+
+    // Global booking state variables
+    let psicologoId = "";
+    let psicologoData = {};
+    let busySlots = [];
+    let selectedDateStr = "";
+    let selectedHourStr = "";
+    
+    const dailySlots = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+
+    // Date navigation state
+    let currentDate = new Date();
+
+    // Check query params
+    const urlParams = new URLSearchParams(window.location.search);
+    psicologoId = urlParams.get('id');
+
+    if (!psicologoId) {
+      document.body.innerHTML = `
+        <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fafaf9; font-family: sans-serif; text-align: center; padding: 2rem;">
+          <h2 style="color: var(--color-rose-600); margin-bottom: 1rem;">Enlace Inválido</h2>
+          <p style="color: var(--color-slate-500); max-width: 400px;">No se especificó ningún psicólogo en el enlace de agendamiento. Por favor, solicita el link correcto a tu terapeuta.</p>
+        </div>
+      `;
+    } else {
+      loadPsychologistProfile();
+    }
+
+    async function loadPsychologistProfile() {
+      try {
+        const psRef = doc(db, "psicologos", psicologoId);
+        const psSnap = await getDoc(psRef);
+        if (!psSnap.exists()) {
+          document.body.innerHTML = `
+            <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fafaf9; font-family: sans-serif; text-align: center; padding: 2rem;">
+              <h2 style="color: var(--color-rose-600); margin-bottom: 1rem;">Psicólogo No Encontrado</h2>
+              <p style="color: var(--color-slate-500); max-width: 400px;">El psicólogo asociado a este enlace no se encuentra registrado en la plataforma Gentia.</p>
+            </div>
+          `;
+          return;
+        }
+
+        psicologoData = psSnap.data();
+        
+        // Fill Profile details
+        document.title = `Agendar Hora con ${psicologoData.nombre} | Gentia`;
+        document.getElementById("psNombre").textContent = psicologoData.nombre || "Profesional";
+        document.getElementById("psAvatar").textContent = (psicologoData.nombre || "P").charAt(0).toUpperCase();
+        
+        const priceOnline = (psicologoData.precioOnline || 25000).toLocaleString('es-CL');
+        const pricePresencial = (psicologoData.precioPresencial || 35000).toLocaleString('es-CL');
+        document.getElementById("psTarifas").textContent = `Online: $${priceOnline} | Presencial: $${pricePresencial}`;
+
+        // Initialize Calendar
+        renderCalendar();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // CALENDAR FUNCTIONS
+    // -------------------------------------------------------------
+    document.getElementById("prevMonth").onclick = () => changeMonth(-1);
+    document.getElementById("nextMonth").onclick = () => changeMonth(1);
+
+    function changeMonth(d) {
+      currentDate.setMonth(currentDate.getMonth() + d);
+      selectedDateStr = "";
+      selectedHourStr = "";
+      updateBookingUI();
+      renderCalendar();
+    }
+
+    async function renderCalendar() {
+      const grid = document.getElementById("calendarGrid");
+      const monthLabel = document.getElementById("currentMonthLabel");
+      
+      const y = currentDate.getFullYear();
+      const m = currentDate.getMonth();
+      
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      monthLabel.textContent = `${monthNames[m]} ${y}`;
+      grid.innerHTML = '<div style="grid-column: span 7; text-align: center; padding: 2rem 0; color: var(--color-slate-500);">Cargando disponibilidad...</div>';
+
+      // Fetch busy slots for this month
+      try {
+        const res = await obtenerDisponibilidadMes({ psicologoId, year: y, month: m + 1 });
+        busySlots = res.data || [];
+      } catch (e) {
+        console.warn("Fallo al obtener disponibilidad:", e);
+        busySlots = [];
+      }
+
+      grid.innerHTML = "";
+      
+      // Render Day Headers
+      const dayHeaders = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+      dayHeaders.forEach(d => {
+        grid.innerHTML += `<div class="calendar-day-header" style="text-align:center; font-weight:600; color:var(--color-slate-500); padding-bottom: 0.5rem;">${d}</div>`;
+      });
+
+      const firstDayIndex = new Date(y, m, 1).getDay();
+      const adjustedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1; // shift Sunday to end
+      const totalDays = new Date(y, m + 1, 0).getDate();
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      // Render offset cells
+      for (let i = 0; i < adjustedFirstDay; i++) {
+        grid.innerHTML += `<div class="day-cell disabled" style="border:none; background:transparent;"></div>`;
+      }
+
+      // Render days of month
+      for (let day = 1; day <= totalDays; day++) {
+        const dateStr = `${y}-${(m + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+        const cellDate = new Date(y, m, day);
+        
+        const isSelected = selectedDateStr === dateStr ? "day-selected" : "";
+        const cell = document.createElement("button");
+        cell.className = `day-cell ${isSelected}`;
+        cell.textContent = day;
+
+        // Block past days and Sundays
+        if (cellDate < today || cellDate.getDay() === 0) {
+          cell.disabled = true;
+        } else if (isDayFull(dateStr, cellDate.getDay() === 6)) {
+          cell.disabled = true;
+          cell.style.backgroundColor = "var(--bg-secondary)";
+        } else {
+          cell.onclick = () => selectDate(dateStr, cell);
+        }
+
+        grid.appendChild(cell);
+      }
+      lucide.createIcons();
+    }
+
+    function isDayFull(dateStr, isSaturday) {
+      const occ = busySlots.filter(c => c.fecha === dateStr).map(c => c.hora);
+      let slots = dailySlots;
+      
+      // Saturday limit up to 14:00
+      if (isSaturday) {
+        slots = dailySlots.filter(h => parseInt(h.split(':')[0]) <= 14);
+      }
+      
+      return slots.every(s => occ.includes(s));
+    }
+
+    window.selectDate = function(dateStr, el) {
+      selectedDateStr = dateStr;
+      selectedHourStr = "";
+      
+      document.querySelectorAll(".day-cell").forEach(c => c.classList.remove("day-selected"));
+      el.classList.add("day-selected");
+
+      // Format human selected date
+      const options = { weekday: 'long', day: 'numeric', month: 'long' };
+      const humanDate = new Date(dateStr + "T00:00:00").toLocaleDateString("es-CL", options);
+      document.getElementById("selectedDateLabel").textContent = humanDate;
+
+      // Show and render slots
+      renderTimeSlots(dateStr);
+      updateBookingUI();
+    };
+
+    function renderTimeSlots(dateStr) {
+      const container = document.getElementById("slotsGrid");
+      container.innerHTML = "";
+      
+      const occ = busySlots.filter(c => c.fecha === dateStr).map(c => c.hora);
+      
+      // Min limit to prevent bookings in less than 24 hours
+      const minLimit = new Date(Date.now() + 86400000);
+      const isSaturday = new Date(dateStr + "T00:00:00").getDay() === 6;
+      let slots = dailySlots;
+      if (isSaturday) {
+        slots = dailySlots.filter(h => parseInt(h.split(':')[0]) <= 14);
+      }
+
+      slots.forEach(h => {
+        const slotBtn = document.createElement("button");
+        slotBtn.type = "button";
+        slotBtn.className = "time-slot";
+        slotBtn.textContent = h;
+
+        const isBusy = occ.includes(h) || new Date(`${dateStr}T${h}:00`) < minLimit;
+        
+        if (isBusy) {
+          slotBtn.disabled = true;
+        } else {
+          if (selectedHourStr === h) slotBtn.classList.add("slot-selected");
+          slotBtn.onclick = () => selectHour(h, slotBtn);
+        }
+        
+        container.appendChild(slotBtn);
+      });
+      document.getElementById("timeSlotSection").classList.remove("hidden");
+    }
+
+    window.selectHour = function(hourStr, el) {
+      selectedHourStr = hourStr;
+      document.querySelectorAll(".time-slot").forEach(s => s.classList.remove("slot-selected"));
+      el.classList.add("slot-selected");
+      
+      updateBookingUI();
+      actualizarPrecioEstimado();
+      loadRecaptcha();
+    };
+
+    function updateBookingUI() {
+      const initMsg = document.getElementById("initialMessage");
+      const form = document.getElementById("bookingForm");
+      
+      if (selectedDateStr && selectedHourStr) {
+        initMsg.classList.add("hidden");
+        form.classList.remove("hidden");
+        
+        // Update summary box
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        const fDate = new Date(selectedDateStr + "T00:00:00").toLocaleDateString("es-CL", options);
+        document.getElementById("summaryDateTime").textContent = `${fDate} a las ${selectedHourStr} hrs`;
+      } else {
+        initMsg.classList.remove("hidden");
+        form.classList.add("hidden");
+      }
+    }
+
+    window.actualizarPrecioEstimado = function() {
+      const modality = document.getElementById("pModalidad").value;
+      const priceVal = modality === "Presencial" ? (psicologoData.precioPresencial || 35000) : (psicologoData.precioOnline || 25000);
+      document.getElementById("summaryPrice").textContent = `$${priceVal.toLocaleString('es-CL')}`;
+    };
+
+    // Load reCAPTCHA dynamic scripts
+    function loadRecaptcha() {
+      if (window.grecaptcha) return;
+      const script = document.createElement('script');
+      // Load standard captcha render
+      script.src = "https://www.google.com/recaptcha/api.js?render=6Lf5K2IsAAAAACN9E2Qn0HxwZ27Xvfkljq_qe6qG";
+      document.head.appendChild(script);
+    }
+
+    // -------------------------------------------------------------
+    // FORM BOOKING SUBMIT
+    // -------------------------------------------------------------
+    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      const loader = document.getElementById("loadingOverlay");
+      loader.classList.remove("hidden");
+
+      const nombre = document.getElementById("pNombre").value.trim();
+      const email = document.getElementById("pEmail").value.trim();
+      const codigoPais = document.getElementById("pCodigoPais").value.trim();
+      const telefono = document.getElementById("pTelefono").value.trim();
+      const modalidad = document.getElementById("pModalidad").value;
+      const plan = document.getElementById("pPlan").value.trim();
+
+      const priceVal = modalidad === "Presencial" ? (psicologoData.precioPresencial || 35000) : (psicologoData.precioOnline || 25000);
+
+      let recaptchaToken = "";
+      if (window.grecaptcha) {
+        try {
+          recaptchaToken = await grecaptcha.execute('6Lf5K2IsAAAAACN9E2Qn0HxwZ27Xvfkljq_qe6qG', { action: 'submit' });
+        } catch (e) {
+          console.warn("reCAPTCHA execute failed:", e);
+        }
+      }
+
+      try {
+        const res = await reservarHora({
+          psicologoId,
+          nombre,
+          email,
+          telefono,
+          codigoPais,
+          fecha: selectedDateStr,
+          hora: selectedHourStr,
+          modalidad,
+          precio: priceVal,
+          plan: plan || null,
+          recaptchaToken
+        });
+
+        loader.classList.add("hidden");
+        
+        if (res.data?.success) {
+          // Trigger Google Calendar sync from frontend call (for instant result, since Cloud Functions are not active on Spark, Vercel API will run this and return. Wait, our Vercel API `reservarHora` actually automatically attempts to sync or returns the appointment ID, and then we redirect to payment).
+          const idCita = res.data.idCita;
+          
+          // Informative success message
+          const statusTitle = document.getElementById("statusTitle");
+          const statusMsg = document.getElementById("statusMsg");
+          const iconBg = document.getElementById("statusIconBg");
+          const icon = document.getElementById("statusIcon");
+
+          statusTitle.textContent = "¡Cita Reservada!";
+          statusMsg.innerHTML = `Tu sesión con <strong>${psicologoData.nombre}</strong> ha sido agendada con éxito para el <strong>${selectedDateStr}</strong> a las <strong>${selectedHourStr} hrs</strong>.<br><br>Se ha enviado un correo a <strong>${email}</strong> con los detalles y datos de pago de la sesión.`;
+          
+          document.getElementById("bookingStatusModal").classList.replace("hidden", "flex");
+        } else {
+          throw new Error(res.data?.error || "Fallo desconocido al procesar cita.");
+        }
+      } catch (err) {
+        loader.classList.add("hidden");
+        alert("Error al reservar la cita: " + err.message);
+      }
+    });
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>

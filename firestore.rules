@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regla de aislamiento total de datos de los psicólogos.
+    // Solo un psicólogo autenticado cuya UID coincida con el ID del documento en la colección de psicólogos
+    // podrá leer, escribir y modificar los documentos dentro de esa rama jerárquica.
+    match /psicologos/{psicologoId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == psicologoId;
+    }
+  }
+}
