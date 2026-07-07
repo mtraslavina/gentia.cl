@@ -66,7 +66,10 @@
       </div>
       
       <div class="form-group" style="margin-bottom: 2rem;">
-        <label for="password">Contraseña</label>
+        <div class="flex justify-between items-center" style="margin-bottom: 0.5rem;">
+          <label for="password" style="margin: 0;">Contraseña</label>
+          <a href="#" onclick="window.recuperarContrasena(event)" style="font-size:0.75rem; color:var(--color-emerald-600); text-decoration:none; font-weight:600;">¿Olvidaste tu contraseña?</a>
+        </div>
         <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password" minlength="6">
       </div>
 
@@ -82,7 +85,8 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-      signInWithPopup, GoogleAuthProvider, onAuthStateChanged 
+      signInWithPopup, GoogleAuthProvider, onAuthStateChanged,
+      sendPasswordResetEmail
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { firebaseConfig } from "./api-config.js";
@@ -93,6 +97,22 @@
     const db = getFirestore(app);
 
     let mode = 'login'; // 'login' or 'register'
+
+    window.recuperarContrasena = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      if (!email) {
+        alert("Por favor ingresa tu correo electrónico primero en el campo de texto superior.");
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert("Se ha enviado un enlace para restablecer tu contraseña a tu correo electrónico.");
+      } catch (err) {
+        console.error(err);
+        alert("Error al enviar el correo de recuperación: " + err.message);
+      }
+    };
 
     // Tab mode switcher
     window.toggleMode = function(newMode) {

@@ -261,6 +261,43 @@
               <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Guardar Ajustes</button>
             </form>
           </div>
+
+          <!-- Card: Seguridad y Cuenta -->
+          <div class="card">
+            <h3 style="font-size: 1.25rem; margin-bottom: 1rem;"><i data-lucide="shield-alert" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i> Seguridad y Cuenta</h3>
+            <p style="color: var(--color-slate-500); font-size: 0.85rem; margin-bottom: 1.5rem;">Administra tus accesos y tu plan de suscripción en Gentia.</p>
+            
+            <form id="securityForm" style="margin-bottom: 2rem;">
+              <h4 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin: 0 0 0.75rem 0; color: var(--color-slate-700);">Actualizar Contraseña</h4>
+              <div class="form-group">
+                <label for="newPassword">Nueva Contraseña</label>
+                <input type="password" id="newPassword" class="form-control" placeholder="Mínimo 6 caracteres" required minlength="6">
+              </div>
+              <div class="form-group">
+                <label for="confirmNewPassword">Confirmar Nueva Contraseña</label>
+                <input type="password" id="confirmNewPassword" class="form-control" placeholder="Repite la contraseña" required minlength="6">
+              </div>
+              <button type="submit" class="btn btn-outline" style="width: 100%;">Cambiar Contraseña</button>
+            </form>
+
+            <hr style="border:none; border-top:1px solid var(--color-slate-100); margin: 1.5rem 0;">
+
+            <h4 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--color-slate-700);">Estado del Plan</h4>
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
+              <p style="font-size: 0.85rem; margin: 0;"><b>Plan:</b> <span id="accountPlanText" style="text-transform: uppercase; font-weight: bold; color: var(--color-emerald-700);">PRO</span></p>
+              <p style="font-size: 0.75rem; color: var(--color-slate-500); margin: 0.25rem 0 0 0;"><b>Estado:</b> <span id="accountStatusText">Activo</span></p>
+            </div>
+            
+            <div class="flex flex-col gap-2">
+              <button type="button" id="btnCancelSubscription" class="btn btn-outline" style="color: var(--color-rose-600); border-color: var(--color-rose-100); width: 100%; justify-content: center;">
+                Cancelar Suscripción
+              </button>
+              <button type="button" id="btnDeleteAccount" class="btn btn-outline" style="color: var(--color-rose-700); background: #fff5f5; border-color: #fee2e2; width: 100%; justify-content: center;">
+                Eliminar Cuenta Permanentemente
+              </button>
+            </div>
+          </div>
+
         </div>
       </section>
     </main>
@@ -770,7 +807,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signOut, onAuthStateChanged, updatePassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { 
       getFirestore, doc, getDoc, setDoc, updateDoc, 
       collection, addDoc, getDocs, deleteDoc, 
@@ -892,6 +929,12 @@
         document.getElementById("tfNombre").value = tf.nombre || "";
         document.getElementById("tfEmail").value = tf.email || "";
 
+        // Fill account security details
+        const plan = psicologoConfig.suscripcion?.plan || 'free';
+        const estado = psicologoConfig.suscripcion?.estado || 'trial';
+        document.getElementById("accountPlanText").textContent = plan;
+        document.getElementById("accountStatusText").textContent = estado === 'trial' ? 'Prueba Gratuita' : (estado === 'activo' ? 'Suscrito' : 'Cancelado');
+
         updateSyncStatus();
         enforceTiers();
       } catch (err) {
@@ -956,6 +999,80 @@
       } catch (err) {
         console.error(err);
         showToast("Error al guardar ajustes", "alert-circle");
+      }
+    });
+
+    // Account Security: Update Password
+    document.getElementById("securityForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const newPass = document.getElementById("newPassword").value;
+      const confirmPass = document.getElementById("confirmNewPassword").value;
+      if (newPass !== confirmPass) {
+        alert("Las contraseñas no coinciden.");
+        return;
+      }
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error("No hay usuario autenticado.");
+        await updatePassword(user, newPass);
+        alert("Contraseña actualizada exitosamente.");
+        document.getElementById("securityForm").reset();
+      } catch (err) {
+        console.error(err);
+        if (err.code === "auth/requires-recent-login") {
+          alert("Por motivos de seguridad, debes cerrar sesión e iniciar sesión nuevamente antes de cambiar tu contraseña.");
+        } else {
+          alert("Error al actualizar la contraseña: " + err.message);
+        }
+      }
+    });
+
+    // Account Security: Cancel Subscription
+    document.getElementById("btnCancelSubscription").addEventListener("click", async () => {
+      const confirmCancel = confirm("¿Estás seguro de cancelar tu suscripción? Perderás el acceso a tus funciones contratadas al terminar tu ciclo actual.");
+      if (!confirmCancel) return;
+      try {
+        const user = auth.currentUser;
+        const psRef = doc(db, "psicologos", user.uid);
+        await updateDoc(psRef, {
+          "suscripcion.estado": "cancelado"
+        });
+        alert("Tu suscripción ha sido cancelada correctamente.");
+        await loadConfig();
+      } catch (err) {
+        console.error(err);
+        alert("Error al cancelar la suscripción: " + err.message);
+      }
+    });
+
+    // Account Security: Delete Account
+    document.getElementById("btnDeleteAccount").addEventListener("click", async () => {
+      const confirmDelete = confirm("¿Estás absolutamente seguro de eliminar tu cuenta? Esta acción es irreversible, borrará todos tus pacientes, citas, historiales clínicos, configuraciones, y tu cuenta de acceso.");
+      if (!confirmDelete) return;
+      
+      const doubleCheck = confirm("Por favor confirma una vez más: ¿Eliminar todos tus registros clínicos permanentemente?");
+      if (!doubleCheck) return;
+
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error("No hay usuario autenticado.");
+        
+        // Delete Firestore profile
+        const psRef = doc(db, "psicologos", user.uid);
+        await deleteDoc(psRef);
+
+        // Delete from Auth
+        await deleteUser(user);
+        
+        alert("Tu cuenta y todos tus registros han sido eliminados correctamente.");
+        window.location.href = "login.html";
+      } catch (err) {
+        console.error(err);
+        if (err.code === "auth/requires-recent-login") {
+          alert("Por motivos de seguridad, debes cerrar sesión e iniciar sesión de nuevo antes de realizar esta operación.");
+        } else {
+          alert("Error al eliminar la cuenta: " + err.message);
+        }
       }
     });
 
