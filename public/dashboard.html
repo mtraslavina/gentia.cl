@@ -359,7 +359,7 @@
           </div>
           <div class="form-group">
             <label for="npAntPsiq">Ant. Psiquiátricos</label>
-            <select id="npAntPsiq" class="form-control">
+            <select id="npAntPsiq" class="form-control" onchange="window.togglePsiqOtroInput()">
               <option value="Ninguno">Ninguno</option>
               <option value="Depresión">Depresión</option>
               <option value="Trastorno de Ansiedad">Trastorno de Ansiedad</option>
@@ -373,6 +373,10 @@
               <option value="Otro">Otro</option>
             </select>
           </div>
+        </div>
+        <div class="form-group hidden" id="npAntPsiqOtroGroup" style="margin-top: 1rem;">
+          <label for="npAntPsiqOtro">Especifique el Trastorno (DSM-5)</label>
+          <input type="text" id="npAntPsiqOtro" class="form-control" placeholder="Ej. Trastorno Ciclotímico, Trastorno Delirante...">
         </div>
         
         <div class="flex gap-4" style="margin-top: 1rem;">
@@ -1422,7 +1426,10 @@
         const prevision = document.getElementById("npPrevision").value.trim();
         const genero = document.getElementById("npGenero").value;
         const antMed = document.getElementById("npAntMed").value.trim();
-        const antPsiq = document.getElementById("npAntPsiq").value.trim();
+        let antPsiq = document.getElementById("npAntPsiq").value;
+        if (antPsiq === "Otro") {
+          antPsiq = document.getElementById("npAntPsiqOtro").value.trim() || "Otro";
+        }
         
         const phoneId = telefono.replace(/\D/g, '');
 
