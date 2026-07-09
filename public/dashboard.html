@@ -352,13 +352,13 @@
             </select>
           </div>
         </div>
-        <div class="grid gap-4" style="grid-template-columns: 1fr 1fr;">
+        <div class="form-group">
+          <label for="npAntMed">Ant. Médicos</label>
+          <input type="text" id="npAntMed" class="form-control" placeholder="Diabetes, hipertensión, etc.">
+        </div>
+        <div class="grid gap-4" style="grid-template-columns: 1fr 1fr; margin-top: 1rem;">
           <div class="form-group">
-            <label for="npAntMed">Ant. Médicos</label>
-            <input type="text" id="npAntMed" class="form-control" placeholder="Diabetes, etc.">
-          </div>
-          <div class="form-group">
-            <label for="npAntPsiq">Ant. Psiquiátricos</label>
+            <label for="npAntPsiq">Ant. Psiquiátricos (DSM-5)</label>
             <select id="npAntPsiq" class="form-control" onchange="window.togglePsiqOtroInput()">
               <option value="Ninguno">Ninguno</option>
               <option value="Depresión">Depresión</option>
@@ -373,10 +373,38 @@
               <option value="Otro">Otro</option>
             </select>
           </div>
+          <div class="form-group">
+            <label for="npAntPsiqCIE11">Ant. Psiquiátricos (CIE-11)</label>
+            <select id="npAntPsiqCIE11" class="form-control" onchange="window.togglePsiqCIE11OtroInput()">
+              <option value="Ninguno">Ninguno</option>
+              <option value="Trastornos del Neurodesarrollo">Trastornos del Neurodesarrollo</option>
+              <option value="Esquizofrenia u otros trastornos psicóticos primarios">Esquizofrenia u otros trastornos psicóticos primarios</option>
+              <option value="Trastornos del Estado de Ánimo">Trastornos del Estado de Ánimo</option>
+              <option value="Trastornos de Ansiedad o relacionados con el miedo">Trastornos de Ansiedad o relacionados con el miedo</option>
+              <option value="Trastornos Obsesivo-Compulsivos o relacionados">Trastornos Obsesivo-Compulsivos o relacionados</option>
+              <option value="Trastornos asociados con el Estrés">Trastornos asociados con el Estrés</option>
+              <option value="Trastornos Disociativos">Trastornos Disociativos</option>
+              <option value="Trastornos de la conducta alimentaria o de la ingesta">Trastornos de la conducta alimentaria o de la ingesta</option>
+              <option value="Trastornos de la eliminación">Trastornos de la eliminación</option>
+              <option value="Trastornos debidos al consumo de sustancias o conductas adictivas">Trastornos debidos al consumo de sustancias o conductas adictivas</option>
+              <option value="Trastornos del control de los impulsos">Trastornos del control de los impulsos</option>
+              <option value="Trastornos de la personalidad y rasgos relacionados">Trastornos de la personalidad y rasgos relacionados</option>
+              <option value="Trastornos neurocognitivos">Trastornos neurocognitivos</option>
+              <option value="Trastornos afectivos asociados con el embarazo/puerperio">Trastornos afectivos asociados con el embarazo/puerperio</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group hidden" id="npAntPsiqOtroGroup" style="margin-top: 1rem;">
-          <label for="npAntPsiqOtro">Especifique el Trastorno (DSM-5)</label>
-          <input type="text" id="npAntPsiqOtro" class="form-control" placeholder="Ej. Trastorno Ciclotímico, Trastorno Delirante...">
+        
+        <div class="grid gap-4" style="grid-template-columns: 1fr 1fr; margin-top: 1rem;">
+          <div class="form-group hidden" id="npAntPsiqOtroGroup">
+            <label for="npAntPsiqOtro">Especifique DSM-5</label>
+            <input type="text" id="npAntPsiqOtro" class="form-control" placeholder="Ej. Trastorno Ciclotímico...">
+          </div>
+          <div class="form-group hidden" id="npAntPsiqCIE11OtroGroup">
+            <label for="npAntPsiqCIE11Otro">Especifique CIE-11</label>
+            <input type="text" id="npAntPsiqCIE11Otro" class="form-control" placeholder="Ej. Trastorno Disociativo...">
+          </div>
         </div>
         
         <div class="flex gap-4" style="margin-top: 1rem;">
@@ -1383,9 +1411,16 @@
               <h4 style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--color-sky-700);">Antecedentes Médicos</h4>
               <p style="font-size: 0.9rem; color: var(--color-slate-800);">${p.antMed || 'Ninguno registrado.'}</p>
             </div>
-            <div style="border: 1px solid var(--color-slate-100); padding: 1.25rem; border-radius: 16px;">
-              <h4 style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--color-emerald-700);">Antecedentes Psiquiátricos</h4>
-              <p style="font-size: 0.9rem; color: var(--color-slate-800);">${p.antPsiq || 'Ninguno registrado.'}</p>
+            <div style="border: 1px solid var(--color-slate-100); padding: 1.25rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.75rem;">
+              <h4 style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.25rem; color: var(--color-emerald-700); font-weight: 700;">Antecedentes Psiquiátricos</h4>
+              <div>
+                <span style="font-size: 0.75rem; color: var(--color-slate-500); font-weight: bold; display: block;">Clasificación DSM-5:</span>
+                <p style="font-size: 0.95rem; color: var(--color-slate-800); margin: 0.15rem 0 0 0;">${p.antPsiq || 'Ninguno'}</p>
+              </div>
+              <div style="border-top: 1px solid var(--color-slate-100); padding-top: 0.5rem;">
+                <span style="font-size: 0.75rem; color: var(--color-slate-500); font-weight: bold; display: block;">Clasificación CIE-11:</span>
+                <p style="font-size: 0.95rem; color: var(--color-slate-800); margin: 0.15rem 0 0 0;">${p.antPsiqCIE11 || 'Ninguno'}</p>
+              </div>
             </div>
           </div>
 
@@ -1430,13 +1465,17 @@
         if (antPsiq === "Otro") {
           antPsiq = document.getElementById("npAntPsiqOtro").value.trim() || "Otro";
         }
+        let antPsiqCIE11 = document.getElementById("npAntPsiqCIE11").value;
+        if (antPsiqCIE11 === "Otro") {
+          antPsiqCIE11 = document.getElementById("npAntPsiqCIE11Otro").value.trim() || "Otro";
+        }
         
         const phoneId = telefono.replace(/\D/g, '');
 
         const pacRef = doc(db, "psicologos", currentPsychologist.uid, "pacientes", phoneId);
         await setDoc(pacRef, {
           nombre, rut, fechaNacimiento: nacimiento, email, codigoPais, telefono: phoneId,
-          prevision, genero, antMed, antPsiq, estado: "Activo",
+          prevision, genero, antMed, antPsiq, antPsiqCIE11, estado: "Activo",
           createdAt: serverTimestamp()
         });
 
@@ -1740,7 +1779,7 @@
 
       let prompt = "";
       if (option === 'completa') {
-        prompt = `Actúa como psiquiatra/psicólogo clínico. Genera una Epicrisis Médica formal para el paciente ${p.nombre} (RUT: ${p.rut || '--'}, Edad: ${edad} años), Previsión: ${p.prevision || '--'}. Antecedentes Médicos: ${p.antMed || 'Ninguno'}, Psiquiátricos: ${p.antPsiq || 'Ninguno'}. Motivo Manifiesto: ${mc.manifiesto || 'No indicado'}, Latente: ${mc.latente || 'No indicado'}. Examen Mental: Apariencia: ${ex.apariencia || '--'}, Juicio: ${ex.juicio || '--'}, Insight: ${ex.insight || '--'}. Evolución (Sesiones Previas): ${resumenNotas}. Escribe en formato HTML estructurado y formal (usando solo h2, p, ul, li, strong, br) SIN incluir la etiqueta markdown \`\`\`html ni bloques <html> o <body>, devuelve directamente el HTML puro. El documento debe contener 4 bloques obligatorios: 1. Identificación y Antecedentes. 2. Motivo de Consulta. 3. Síntesis de Evolución y Estado Mental actual. 4. Indicaciones al Alta / Sugerencias. Al puro final del HTML, debes agregar un bloque con estilo CSS explícito (text-align: center; margin-top: 80px;) que contenga una línea de firma (___________________) y debajo "Firma del Profesional Tratante".`;
+        prompt = `Actúa como psiquiatra/psicólogo clínico. Genera una Epicrisis Médica formal para el paciente ${p.nombre} (RUT: ${p.rut || '--'}, Edad: ${edad} años), Previsión: ${p.prevision || '--'}. Antecedentes Médicos: ${p.antMed || 'Ninguno'}, Psiquiátricos DSM-5: ${p.antPsiq || 'Ninguno'}, CIE-11: ${p.antPsiqCIE11 || 'Ninguno'}. Motivo Manifiesto: ${mc.manifiesto || 'No indicado'}, Latente: ${mc.latente || 'No indicado'}. Examen Mental: Apariencia: ${ex.apariencia || '--'}, Juicio: ${ex.juicio || '--'}, Insight: ${ex.insight || '--'}. Evolución (Sesiones Previas): ${resumenNotas}. Escribe en formato HTML estructurado y formal (usando solo h2, p, ul, li, strong, br) SIN incluir la etiqueta markdown \`\`\`html ni bloques <html> o <body>, devuelve directamente el HTML puro. El documento debe contener 4 bloques obligatorios: 1. Identificación y Antecedentes. 2. Motivo de Consulta. 3. Síntesis de Evolución y Estado Mental actual. 4. Indicaciones al Alta / Sugerencias. Al puro final del HTML, debes agregar un bloque con estilo CSS explícito (text-align: center; margin-top: 80px;) que contenga una línea de firma (___________________) y debajo "Firma del Profesional Tratante".`;
       } else {
         prompt = `Actúa como psiquiatra/psicólogo clínico. Genera un "Resumen de Evoluciones Clínicas" para el paciente ${p.nombre} (RUT: ${p.rut || '--'}). Evolución Cruda de Sesiones Previas: ${resumenNotas}. Escribe en formato HTML estructurado y formal (usando solo h2, p, ul, li, strong, br) SIN incluir la etiqueta markdown \`\`\`html ni bloques <html> o <body>, devuelve directamente el HTML puro. Ignora cuadros demográficos y antecedentes. Organiza el reporte EXCLUSIVAMENTE como una bitácora cronológica estructurada de las sesiones, destacando Ansiedad, Depresión y Estrés.`;
       }
