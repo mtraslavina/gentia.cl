@@ -301,6 +301,22 @@
         </div>
       </section>
     </main>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-nav-bar">
+      <button onclick="window.switchTabMobile('tab-agenda', this)" class="mobile-nav-item active">
+        <i data-lucide="calendar"></i>
+        <span>Agenda</span>
+      </button>
+      <button onclick="window.switchTabMobile('tab-pacientes', this)" class="mobile-nav-item">
+        <i data-lucide="users"></i>
+        <span>Pacientes</span>
+      </button>
+      <button onclick="window.switchTabMobile('tab-ajustes', this)" class="mobile-nav-item">
+        <i data-lucide="settings"></i>
+        <span>Ajustes</span>
+      </button>
+    </nav>
   </div>
 
   <!-- MODALS -->
@@ -915,6 +931,15 @@
       if (tabId === "tab-citas") {
         renderCalendar();
       }
+    };
+
+    window.switchTabMobile = function(tabId, btnElement) {
+      const correspondingSidebarLink = document.querySelector(`.sidebar-link[onclick*="${tabId}"]`);
+      switchTab(tabId, correspondingSidebarLink || btnElement);
+
+      const items = document.querySelectorAll(".mobile-nav-item");
+      items.forEach(item => item.classList.remove("active"));
+      btnElement.classList.add("active");
     };
 
     // Global Modal Utilities
