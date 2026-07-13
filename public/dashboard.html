@@ -2331,6 +2331,20 @@
       showToast("Enlace de reservas copiado", "check");
     };
 
+    window.togglePsiqOtroInput = function() {
+      const val = document.getElementById("npAntPsiq").value;
+      const group = document.getElementById("npAntPsiqOtroGroup");
+      if (val === "Otro") group.classList.remove("hidden");
+      else group.classList.add("hidden");
+    };
+
+    window.togglePsiqCIE11OtroInput = function() {
+      const val = document.getElementById("npAntPsiqCIE11").value;
+      const group = document.getElementById("npAntPsiqCIE11OtroGroup");
+      if (val === "Otro") group.classList.remove("hidden");
+      else group.classList.add("hidden");
+    };
+
     // Formatting dates helpers
     function dateStr(date) {
       return date.toLocaleDateString("es-CL", { day: 'numeric', month: 'long', year: 'numeric' });
