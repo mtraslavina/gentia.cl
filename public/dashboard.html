@@ -220,10 +220,10 @@
               </div>
               <div class="form-group">
                 <label for="geminiApiKey" class="flex justify-between items-center">
-                  <span>API Key de Gemini (Para Epicrisis/Transcripción)</span>
+                  <span>API Key de Gemini (Opcional - Cubierto por la plataforma)</span>
                   <a href="#" onclick="window.showGeminiSetupHelp(event)" style="font-size:0.75rem; color:var(--color-emerald-600); font-weight:600; text-decoration:none;">¿Cómo obtenerla?</a>
                 </label>
-                <input type="password" id="geminiApiKey" class="form-control" placeholder="AIzaSy...">
+                <input type="password" id="geminiApiKey" class="form-control" placeholder="Opcional: AIzaSy...">
               </div>
               
               <h4 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin: 1.5rem 0 0.75rem 0; color: var(--color-slate-700);">Datos de Transferencia Bancaria</h4>
@@ -788,38 +788,61 @@
 
   <!-- Modal: Epicrisis Options (Gemini PDF) -->
   <div id="modal-epicrisis-options" class="modal-overlay hidden">
-    <div class="modal-window" style="max-width: 400px; text-align: center;">
+    <div class="modal-window" style="max-width: 450px; text-align: left;">
       <h3 style="font-size: 1.35rem; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: var(--color-slate-900);">
-        <i data-lucide="sparkles" style="color: #8b5cf6;"></i> Generar Reporte con IA
+        <i data-lucide="sparkles" style="color: #8b5cf6;"></i> Generar Reporte Clínico IA
       </h3>
-      <p style="color: var(--color-slate-500); font-size: 0.8rem; margin-bottom: 1.5rem;">Gemini 2.5 Flash redactará un informe clínico estructurado listo para exportar a PDF.</p>
+      <p style="color: var(--color-slate-500); font-size: 0.8rem; margin-bottom: 1.5rem; text-align: center;">Personaliza la redacción del reporte clínico generado por la Inteligencia Artificial.</p>
       
       <input type="hidden" id="epIdPac">
-      <div style="text-align: left; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
-        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer" style="margin: 0;">
-          <input type="radio" name="epTipo" value="completa" checked style="margin-top: 0.25rem;">
-          <div>
-            <span style="font-size: 0.85rem; font-weight: bold; color: var(--color-slate-900); display: block;">Epicrisis Completa</span>
-            <span style="font-size: 0.75rem; color: var(--color-slate-500);">Incluye ficha completa, antecedentes, examen mental y síntesis de todas las evoluciones.</span>
+      
+      <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="form-group">
+          <label for="epModo" style="font-weight: 600; font-size: 0.85rem;">Modo de Generación</label>
+          <select id="epModo" class="form-control" onchange="window.toggleEpicrisisAdvancedOptions()">
+            <option value="BREVE" selected>MODO BREVE (Resumen corto, 1 párrafo)</option>
+            <option value="EXTENSO_SESION">MODO EXTENSO (Informe completo de sesión actual)</option>
+            <option value="ACUMULATIVO_HISTORIAL">MODO ACUMULATIVO (Síntesis evolutiva longitudinal)</option>
+          </select>
+        </div>
+
+        <div id="epAdvancedGroup" class="hidden" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label for="epEnfoque" style="font-weight: 600; font-size: 0.85rem;">Enfoque Clínico</label>
+            <select id="epEnfoque" class="form-control">
+              <option value="ENFOQUE PSICOANALÍTICO / PSICODINÁMICO">Psicoanalítico / Psicodinámico</option>
+              <option value="ENFOQUE COGNITIVO-CONDUCTUAL (TCC)" selected>Cognitivo-Conductual (TCC)</option>
+              <option value="ENFOQUE SISTÉMICO">Sistémico</option>
+              <option value="ENFOQUE HUMANISTA / GESTÁLTICO">Humanista / Gestáltico</option>
+              <option value="SIN ENFOQUE (SÓLO RESUMEN COMPLETO)">Sin Enfoque (Sólo Resumen Completo)</option>
+            </select>
           </div>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer" style="margin: 0;">
-          <input type="radio" name="epTipo" value="resumen_sesiones" style="margin-top: 0.25rem;">
-          <div>
-            <span style="font-size: 0.85rem; font-weight: bold; color: var(--color-slate-900); display: block;">Solo Bitácora de Sesiones</span>
-            <span style="font-size: 0.75rem; color: var(--color-slate-500);">Ignora antecedentes demográficos. Resumen cronológico del desarrollo y métricas de sesión.</span>
+
+          <div class="form-group">
+            <label for="epSubenfoque" style="font-weight: 600; font-size: 0.85rem;">Subenfoque Específico</label>
+            <input type="text" id="epSubenfoque" class="form-control" placeholder="Ej. Pulsiones freudianas, mentalización, esquemas...">
           </div>
-        </label>
+
+          <div class="form-group">
+            <label for="epTono" style="font-weight: 600; font-size: 0.85rem;">Tono del Informe</label>
+            <select id="epTono" class="form-control">
+              <option value="Estricto/Formal" selected>Estricto / Formal</option>
+              <option value="Colaborativo">Colaborativo</option>
+              <option value="Descriptivo/Forense">Descriptivo / Forense</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div class="flex gap-4">
-        <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('modal-epicrisis-options')">Cancelar</button>
+        <button type="button" class="btn btn-outline" style="flex: 1; justify-content: center;" onclick="closeModal('modal-epicrisis-options')">Cancelar</button>
         <button type="button" id="btnGenerarEpiConf" class="btn btn-emerald flex gap-2" style="flex: 1.2; justify-content: center; background: #8b5cf6;">
-          <i data-lucide="file-text"></i> Generar PDF
+          <i data-lucide="file-text"></i> Generar Reporte
         </button>
       </div>
     </div>
   </div>
+
 
   <!-- Modal: Analítica de Métricas (Averages and Diagnosis) -->
   <div id="modal-analitica" class="modal-overlay hidden">
@@ -1762,66 +1785,105 @@
         selectPatient(patientId);
       } catch (err) {
         console.error(err);
-        showToast("Error al guardar", "alert-circle");
-      }
-    });
-
-    // -------------------------------------------------------------
-    // EPICRISIS CON GEMINI IA
-    // -------------------------------------------------------------
-    window.openModalEpicrisis = function(patientId) {
-      const key = psicologoConfig.geminiApiKey;
-      if (!key) {
-        alert("Por favor, ingresa tu API Key de Gemini en la sección Ajustes -> Preferencias y Precios para habilitar la generación de Epicrisis.");
-        return;
-      }
+        showToast("Error al guardar"    window.openModalEpicrisis = function(patientId) {
       document.getElementById("epIdPac").value = patientId;
       openModal("modal-epicrisis-options");
+      window.toggleEpicrisisAdvancedOptions();
+    };
+
+    window.toggleEpicrisisAdvancedOptions = function() {
+      const modo = document.getElementById("epModo").value;
+      const advGroup = document.getElementById("epAdvancedGroup");
+      if (modo === "BREVE") {
+        advGroup.classList.add("hidden");
+      } else {
+        advGroup.classList.remove("hidden");
+      }
     };
 
     document.getElementById("btnGenerarEpiConf").addEventListener("click", async () => {
       const patientId = document.getElementById("epIdPac").value;
-      const option = document.querySelector('input[name="epTipo"]:checked').value;
+      const modo = document.getElementById("epModo").value;
+      const enfoque = document.getElementById("epEnfoque").value;
+      const subenfoque = document.getElementById("epSubenfoque").value.trim();
+      const tono = document.getElementById("epTono").value;
       closeModal("modal-epicrisis-options");
-      await generarEpicrisisIA(patientId, option);
+      await generarEpicrisisIA(patientId, modo, enfoque, subenfoque, tono);
     });
 
-    async function generarEpicrisisIA(patientId, option) {
-      const key = psicologoConfig.geminiApiKey;
-      if (!key) return;
-
+    async function generarEpicrisisIA(patientId, modo, enfoque, subenfoque, tono) {
       const pRef = doc(db, "psicologos", currentPsychologist.uid, "pacientes", patientId);
       const pSnap = await getDoc(pRef);
       if (!pSnap.exists()) return;
       const p = pSnap.data();
 
-      showToast("La IA está redactando la Epicrisis...", "sparkles");
+      showToast("La IA está redactando el reporte...", "sparkles");
 
       const resumenNotas = currentNotas.map(n => `Fecha: ${n.createdAt?.toDate().toLocaleDateString('es-CL') || '--'} | Tipo: ${n.tipo} | Notas: ${n.contenido} | Ansiedad:${n.ansiedad} Depresión:${n.depresion} Estrés:${n.estres}`).join('\n');
       const mc = p.motivoConsulta || {};
       const ex = p.examenMental || {};
       const edad = p.fechaNacimiento ? Math.floor((new Date() - new Date(p.fechaNacimiento)) / 31557600000) : '--';
 
-      let prompt = "";
-      if (option === 'completa') {
-        prompt = `Actúa como psiquiatra/psicólogo clínico. Genera una Epicrisis Médica formal para el paciente ${p.nombre} (RUT: ${p.rut || '--'}, Edad: ${edad} años), Previsión: ${p.prevision || '--'}. Antecedentes Médicos: ${p.antMed || 'Ninguno'}, Psiquiátricos DSM-5: ${p.antPsiq || 'Ninguno'}, CIE-11: ${p.antPsiqCIE11 || 'Ninguno'}. Motivo Manifiesto: ${mc.manifiesto || 'No indicado'}, Latente: ${mc.latente || 'No indicado'}. Examen Mental: Apariencia: ${ex.apariencia || '--'}, Juicio: ${ex.juicio || '--'}, Insight: ${ex.insight || '--'}. Evolución (Sesiones Previas): ${resumenNotas}. Escribe en formato HTML estructurado y formal (usando solo h2, p, ul, li, strong, br) SIN incluir la etiqueta markdown \`\`\`html ni bloques <html> o <body>, devuelve directamente el HTML puro. El documento debe contener 4 bloques obligatorios: 1. Identificación y Antecedentes. 2. Motivo de Consulta. 3. Síntesis de Evolución y Estado Mental actual. 4. Indicaciones al Alta / Sugerencias. Al puro final del HTML, debes agregar un bloque con estilo CSS explícito (text-align: center; margin-top: 80px;) que contenga una línea de firma (___________________) y debajo "Firma del Profesional Tratante".`;
-      } else {
-        prompt = `Actúa como psiquiatra/psicólogo clínico. Genera un "Resumen de Evoluciones Clínicas" para el paciente ${p.nombre} (RUT: ${p.rut || '--'}). Evolución Cruda de Sesiones Previas: ${resumenNotas}. Escribe en formato HTML estructurado y formal (usando solo h2, p, ul, li, strong, br) SIN incluir la etiqueta markdown \`\`\`html ni bloques <html> o <body>, devuelve directamente el HTML puro. Ignora cuadros demográficos y antecedentes. Organiza el reporte EXCLUSIVAMENTE como una bitácora cronológica estructurada de las sesiones, destacando Ansiedad, Depresión y Estrés.`;
-      }
+      const promptTemplate = `Eres un psicólogo clínico experto, con un dominio riguroso de la psicopatología y la redacción de informes de alta precisión. Tu tarea es procesar la transcripción de una o más sesiones de psicoterapia y generar el producto clínico solicitado bajo estrictas reglas de formato y enfoque teórico.
+
+[MODOS DE GENERACIÓN]
+El usuario seleccionará un modo de ejecución (${modo}). Debes cumplir estrictamente con el formato del modo activo:
+1. MODO "BREVE" (Por defecto): Genera única y exclusivamente UN solo párrafo sintético (máximo 5-6 líneas) que resuma los núcleos temáticos principales de la sesión actual. Sin títulos, sin introducciones.
+2. MODO "EXTENSO_SESION": Genera un informe detallado de la sesión actual estructurado según las variables de enfoque y tono indicadas abajo.
+3. MODO "ACUMULATIVO_HISTORIAL": Analiza el corpus de todas las transcripciones históricas provistas hasta la fecha y genera una síntesis evolutiva longitudinal del proceso terapéutico del paciente.
+
+[VARIABLES DE CONFIGURACIÓN]
+- Modo de Generación: ${modo} (Opciones: BREVE, EXTENSO_SESION, ACUMULATIVO_HISTORIAL)
+- Enfoque Clínico: ${enfoque}
+- Subenfoque Específico: ${subenfoque || "General"}
+- Tono del Informe: ${tono} (Ej: Estricto/Formal, Colaborativo, Descriptivo/Forense)
+- Transcripción Actual / Corpus Histórico:
+"""
+${resumenNotas || "Paciente registrado en la plataforma, sin notas previas todavía."}
+"""
+
+[REGLAS ESTRUCTURALES OFICIALES SEGÚN ENFOQUE]
+Si el modo es "EXTENSO_SESION" o "ACUMULATIVO_HISTORIAL", amolda la estructura, el vocabulario técnico y el análisis conceptual al ${enfoque} seleccionado:
+
+- ENFOQUE PSICOANALÍTICO / PSICODINÁMICO:
+  * Estructura: 1. Motivo de Consulta e Indicadores Clínicos; 2. Análisis Dinámico y Configuración Inconsciente; 3. Dinámica Transferencial y Mecanismos de Defensa; 4. Lineamientos de Trabajo para la Cura.
+  * Requisito: Operacionalizar según el ${subenfoque || "general"} inyectado (ej: constructos freudianos pulsionales, nociones lacanianas del inconsciente estructurado como un lenguaje, lógicas de las relaciones objetales, o constructos de mentalización).
+
+- ENFOQUE COGNITIVO-CONDUCTUAL (TCC):
+  * Estructura: 1. Motivo de Consulta y Conducta Problema; 2. Análisis Funcional / Cognitivo (Creencias nucleares, supuestos, distorsiones cognitivas identificadas); 3. Registro de Activación Emocional y Fisiológica; 4. Objetivos Terapéuticos Medibles y Tareas Clínicas.
+
+- ENFOQUE SISTÉMICO:
+  * Estructura: 1. Demanda Inicial y Contexto Familiar; 2. Hipótesis Sistémica (Dinámicas relacionales, fronteras, alianzas, coaliciones y ciclo vital); 3. Patrones de Comunicación y Retroalimentación; 4. Propuesta de Intervención Estratégica/Estructural.
+
+- ENFOQUE HUMANISTA / GESTÁLTICO:
+  * Estructura: 1. Vivencia Fenomenológica del Consultante; 2. Bloqueos en el Ciclo de la Experiencia / Contacto (Aquí y Ahora); 3. Atributos de Autorrealización y Sentido; 4. Foco de Acompañamiento Terapéutico.
+
+- SIN ENFOQUE (SÓLO RESUMEN COMPLETO):
+  * Estructura: 1. Resumen Ejecutivo de la Sesión; 2. Temáticas Centrales Abordadas; 3. Evolución General del Paciente.
+
+[MANDATOS CRÍTICOS]
+1. No inventes datos demográficos, fechas, ni eventos de vida que no estén explícitamente en la transcripción.
+2. Adapta el lenguaje informal a terminología psicológica formal según el ${tono} solicitado.
+3. Si el modo es "BREVE", ignora las estructuras de los enfoques y devuelve únicamente el párrafo condensado.
+
+IMPORTANTE: Escribe la respuesta formateada únicamente como HTML utilizando sólo las etiquetas h2, p, ul, li, strong, br para que se pueda imprimir directamente. NO envuelvas la respuesta en bloques de código markdown tipo \`\`\`html ni agregues las etiquetas <html> o <body>. Si el modo no es BREVE, agrega al final una línea de firma (___________________) y debajo la frase "Firma del Profesional Tratante".`;
 
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
+        const res = await fetch(`/api/generarContenidoGemini`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+          body: JSON.stringify({ 
+            textPrompt: promptTemplate,
+            userBackupKey: psicologoConfig.geminiApiKey || ""
+          })
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || "Error al conectar con Gemini");
+        if (!res.ok) throw new Error(data.error || data.message || "Error al conectar con Gemini");
 
         let htmlResponse = data.candidates[0].content.parts[0].text;
         htmlResponse = htmlResponse.replace(/```html/g, '').replace(/```/g, '');
 
-        const titleText = option === 'completa' ? 'Epicrisis Médica' : 'Resumen de Evoluciones Clínicas';
+        const titleText = modo === 'BREVE' ? 'Resumen Clínico IA' : `Informe Clínico IA (${tono})`;
 
         // Inject to print area
         const printArea = document.getElementById("nativePrintArea");
@@ -1836,7 +1898,7 @@
         `;
 
         const originalTitle = document.title;
-        const fileName = option === 'completa' ? `Epicrisis_${p.nombre.replace(/ /g, '_')}` : `Evoluciones_${p.nombre.replace(/ /g, '_')}`;
+        const fileName = `${titleText.replace(/ /g, '_')}_${p.nombre.replace(/ /g, '_')}`;
         document.title = fileName;
 
         setTimeout(() => {
@@ -1867,12 +1929,6 @@
     }
 
     document.getElementById("btnRecordAudio").addEventListener("click", async () => {
-      const key = psicologoConfig.geminiApiKey;
-      if (!key) {
-        alert("Configura tu API Key de Gemini en Ajustes primero.");
-        return;
-      }
-
       const btn = document.getElementById("btnRecordAudio");
       const textNotes = document.getElementById("nnContenido");
 
@@ -1901,21 +1957,19 @@
 
               const promptText = `Eres un psicólogo y clínico experto. Escucha el siguiente audio de una sesión de terapia y redacta estrictamente la Evolución Clínica u Observación formal que se escribirá en la ficha médica del paciente. No incluyas saludos ni explicaciones, ve directo al texto de la evolución, estructurado en uno o dos párrafos breves y claros usando lenguaje técnico clínico chileno. Si no hay audio entendible, escribe 'Audio incomprensible'.`;
 
-              const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
+              const res = await fetch(`/api/generarContenidoGemini`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  contents: [{
-                    parts: [
-                      { inlineData: { mimeType: "audio/webm", data: base64Audio } },
-                      { text: promptText }
-                    ]
-                  }]
+                  mimeType: "audio/webm",
+                  audioData: base64Audio,
+                  textPrompt: promptText,
+                  userBackupKey: psicologoConfig.geminiApiKey || ""
                 })
               });
               
               const data = await res.json();
-              if (!res.ok) throw new Error(data.error?.message || "Error Gemini");
+              if (!res.ok) throw new Error(data.error || data.message || "Error Gemini");
               
               const transcripcion = data.candidates[0].content.parts[0].text;
               textNotes.value = transcripcion + "\n\n---\n" + (textNotes.value || "");
@@ -1940,6 +1994,46 @@
         }
       }
     });
+
+    document.getElementById("btnUploadAudioFile").addEventListener("click", () => {
+      document.getElementById("nnAudioFile").click();
+    });
+
+    window.handleAudioFileUpload = async function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const textNotes = document.getElementById("nnContenido");
+      showToast("Procesando y transcribiendo archivo de audio...", "sparkles");
+      
+      try {
+        const base64Audio = await blobToBase64(file);
+        const promptText = `Eres un psicólogo y clínico experto. Escucha el siguiente audio de una sesión de terapia y redacta estrictamente la Evolución Clínica u Observación formal que se escribirá en la ficha médica del paciente. No incluyas saludos ni explicaciones, ve directo al texto de la evolución, estructurado en uno o dos párrafos breves y claros usando lenguaje técnico clínico chileno. Si no hay audio entendible, escribe 'Audio incomprensible'.`;
+
+        const res = await fetch(`/api/generarContenidoGemini`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mimeType: file.type || "audio/webm",
+            audioData: base64Audio,
+            textPrompt: promptText,
+            userBackupKey: psicologoConfig.geminiApiKey || ""
+          })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || data.message || "Error Gemini");
+        
+        const transcripcion = data.candidates[0].content.parts[0].text;
+        textNotes.value = transcripcion + "\n\n---\n" + (textNotes.value || "");
+        showToast("Archivo de audio transcrito con éxito", "check");
+      } catch (err) {
+        console.error(err);
+        alert("Error al transcribir archivo: " + err.message);
+      } finally {
+        event.target.value = ""; // Clear file input
+      }
+    };
 
     // -------------------------------------------------------------
     // ANALÍTICA DE METRICAS

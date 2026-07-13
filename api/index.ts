@@ -504,9 +504,55 @@ app.post("/api/syncCalendarEvent", handleExpressCall(async (data) => {
   return { success: true, meetUrl: meetLink };
 }));
 
+app.post("/api/generarContenidoGemini", handleExpressCall(async (data) => {
+  const { contents, mimeType, audioData, textPrompt, userBackupKey } = data;
+  
+  const apiKey = process.env.GEMINI_API_KEY || userBackupKey || "";
+  if (!apiKey) {
+    throw new Error("No se ha configurado la API Key de Gemini ni en el servidor ni en tu cuenta.");
+  }
+
+  // Use Gemini 1.5 Flash as the standard low-cost/lite version.
+  const model = "gemini-1.5-flash"; 
+  
+  let payload: any = {};
+  if (contents) {
+    payload = { contents };
+  } else if (audioData && mimeType && textPrompt) {
+    payload = {
+      contents: [{
+        parts: [
+          { inlineData: { mimeType, data: audioData } },
+          { text: textPrompt }
+        ]
+      }]
+    };
+  } else if (textPrompt) {
+    payload = {
+      contents: [{ parts: [{ text: textPrompt }] }]
+    };
+  } else {
+    throw new Error("Parámetros de entrada de Gemini inválidos.");
+  }
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  const resData = await response.json() as any;
+  if (!response.ok) {
+    throw new Error(resData.error?.message || "Error al invocar API de Gemini");
+  }
+
+  return resData;
+}));
+
 // Fallback path
 app.get("*", (req, res) => {
   res.status(404).send("API Endpoint Not Found");
 });
 
 export default app;
+
